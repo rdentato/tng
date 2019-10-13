@@ -3,14 +3,14 @@
 # ## Introduction
 #
 #   This is the *tangle* tool for a very simple literate programming
-# system called `ltp`. I will assume familitarity with literate
+# system called `tng`. I will assume familitarity with literate
 # programming and will just recall some basic concepts. See the
 # [Wikipedia](https://en.wikipedia.org/wiki/Literate_programming)
 # article for more information on Literate Programming.
 #
-#   `ltp` deviates from the traditional Knuth's WEB style and has been mainly
+#   `tng` deviates from the traditional Knuth's WEB style and has been mainly
 # inspired to me by a post on
-# [Kartik Agaram's blog](http://akkartik.name/post/literate-programming).
+# [Kartik Agaram's blog](http://akkartik.name/post/wart-layers).
 #
 #   I do not subscribe entirely to Kartik's point of view on how to
 # rearrange code to make it more easily understood (actually I find it
@@ -43,7 +43,6 @@
 # are five of them:
 #
 #    - `(code:[filename])` What follows will be included in the generated file.
-#                          The filename 
 #    - `(text:[filename])`
 #    - `(after:<waypoint>)`
 #    - `(before:<waypoint>)`
@@ -75,6 +74,7 @@
 
 #   Actually the logic is almost trivial.
 #   The `tangle` function takes care of the entire process:
+
 tangle () {
   # Remove leftovers from previous run just to stay safe
   # (:Remove temp files)
@@ -246,22 +246,46 @@ fi
 
 # ### Handling chunk names
 #
-# (after: Global Declaration)
-shopt -s extglob
+#   To enable some expressiveness, we must give flexibility on the waypoint
+# (and, hence, chunks) definition. Not too much, or it wil bee to complicated
+# to handle (in the end they will be used as file names), but not to little 
+# that the programmer has to remember exactly how she spelled this or that waypoint.
+#
+#   Chunk names are transformed according the following rulese:
+#     - Letters are converted to lower case
+#     - Tabs are converted in spaces
+#     - Trailing and leading spaces are removed
+#     - Sequence of spaces are collapsed into a single space
+#     - Spaces are replaced with `~` (to create an easire to handle filename)
+#
+#   All the following directives are the same:
+#     -  `(after: Do fancy stuff)`
+#     -  `(after:Do fancy stuff)`
+#     -  `(after: Do Fancy STUFF)`
+#     -  `(after: do   Fancy    stuff   )`
+#     -  `(after: do   fancy    stuff   )`
+#
+# but they are not equivalent to any of these:
+#     -  `(after: Do fancy stuff.)`    <- there is a period at the end
+#     -  `(after: D o fan cy stu ff)`  <- there a space between `D` and `o`
 
 # (after:Global Declaration)
+# The `-l` option will convert the content to lower case
 declare -g -l chunk
 
 # (after: Functions)
 getchunkname () {
   #chunk=$(echo "$1" | sed -e 's/\s\s*/~/g' -e 's/~~*$//' )
   chunk="$1"
-  chunk=${chunk%%+([[:space:]])}
-  chunk=${chunk//+([[:space:]])/'~'}
+  chunk=${chunk%%+([[:space:]])}      # <---+- thanks to shopt -s below
+  chunk=${chunk//+([[:space:]])/'~'}  # <--/
 }
 
+# (after: Global Declaration)
+# This enables the extended matching for Bash string substitution.
+shopt -s extglob
 
-# ## Print `#line` 
+# ## Printing `#line` 
 #
 #   As it is customary for preprocessors, tangle will insert into 
 # the generated code a set of `#line` directives that will allow 
@@ -281,7 +305,7 @@ lnum=1
 # a the command line option `-n`.
 #
 # (after:Global Declaration)
-  declare -g -i prtln ; prtln=1  # 1: print it  0: don't
+declare -g -i prtln ; prtln=1  # 1: print it  0: don't
 
 # (after:Handle command line options)  
 if [[ "$1" == "-n" ]] ; then
@@ -298,7 +322,7 @@ prtlnum () {
 # ## Cleanup
 #
 # (after: Remove temp files)
-rm -f \~[ABC]~*
+rm -f \~[ABC]~* 2> /dev/null
 
 # ## Error Handling
 #
@@ -316,6 +340,3 @@ for fname in "$@" ; do
     echo "Missing file: $fname" 1>&2 ; exit
   fi
 done
-
-
-
