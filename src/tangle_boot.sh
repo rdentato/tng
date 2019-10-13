@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 
 cleanup () {
-  rm -f \~[ABC]~*
+  rm -f \~[ABC]~*  2> /dev/null
 }
 
 error () {
@@ -13,6 +13,15 @@ error () {
 prtlnum () {
   if (( $prtln )) ; then
     echo "#line $lnum \"$bname\"" >> "$curfile"
+  fi
+}
+
+# Set `directive`, `args` and `chunk` if there is a directive in the line
+checkdirective () {
+  if [[ "$line" =~ $rxdirective && -z "${BASH_REMATCH[1]}" ]] ; then
+    directive="${BASH_REMATCH[2]}"
+    args="${BASH_REMATCH[3]}"
+    getchunkname "$args"
   fi
 }
 
@@ -33,12 +42,7 @@ splitchunks () {
   while IFS= read -r line || [[ -n "$line" ]] ; do
     lnum+=1
     directive="~"
-    # Set `directive`, `args` and `chunk` if there is a directive in the line
-    if [[ "$line" =~ $rxdirective && -z "${BASH_REMATCH[1]}" ]] ; then
-      directive="${BASH_REMATCH[2]}"
-      args="${BASH_REMATCH[3]}"
-      getchunkname "$args"
-    fi
+    checkdirective
     case $directive in
          after) curfile="~A~$chunk" ; prtlnum ;;
         before) curfile="~B~$chunk" ; prtlnum ;;
@@ -71,11 +75,7 @@ reassemble () {
     numpass+=1
     while IFS= read -r line || [[ -n "$line" ]] ; do
       directive="~"
-      if [[ "$line" =~ $rxdirective && -z "${BASH_REMATCH[1]}" ]] ; then
-        directive="${BASH_REMATCH[2]}"
-        args="${BASH_REMATCH[3]}"
-        getchunkname "$args"
-      fi
+      checkdirective
       case $directive in 
          "" ) if [[ -f "~B~$chunk" ]] ; then cat "~B~$chunk" ; fi
               if [[ -f "~A~$chunk" ]] ; then cat "~A~$chunk" ; fi
@@ -122,8 +122,7 @@ tangle () {
   for fname in "$@" ; do reassemble  ; done
   
   # Cleanup temp files
-  
-  #cleanup
+  cleanup
 }
 
 tangle "$@"
