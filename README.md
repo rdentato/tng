@@ -40,8 +40,8 @@ and for a live demonstration of how they work.
 
   Note that you can also use quotes *within* the parenthesis to please your editor/IDE.
 For example: `(':my way point')` or `("after: my  way  point")`.
-(Remember: the *external* quotes are there just avoid them to be mistaken for actual directives.)
+(Remember: placing the quote *outside* the parenthesis will avoid them to be interpreted as directives.)
 
 
 **WARNING** Even if this version is language independent, it won't work with Python or any 
-            other language for which trailing blanks are meaningful.
+            other language for which leading blanks are meaningful.
