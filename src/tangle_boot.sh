@@ -103,7 +103,7 @@ tangle () {
   tab='	'  # BEWARE THE LITERAL TAB within quotes ('\x09')!!!!
   #    ^-------------------------------------------------------
   quote='["`'"'"']'
-  rxdirective='('$quote'?)\(([a-z]*):[ '$tab']*([A-Za-z0-9_. '$tab']*)\)'
+  rxdirective='('$quote'?)\('$quote'?([a-z]*):[ '$tab']*([A-Za-z0-9_. '$tab']*)'$quote'?\)'
 
   # Remove leftovers from previous run
   cleanup

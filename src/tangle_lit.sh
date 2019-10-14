@@ -218,7 +218,7 @@ tab='	'  # BEWARE THE LITERAL TAB within quotes ('\x09')!!!!
 
 quote='["`'"'"']'  # <-- This confusing sequence of quotes is just ['"`]
 
-rxdirective='('$quote'?)\(([a-z]*):[ '$tab']*([A-Za-z0-9_. '$tab']*)\)'
+rxdirective='('$quote'?)\('$quote'?([a-z]*):[ '$tab']*([A-Za-z0-9_. '$tab']*)'$quote'?\)'
 
 #   The regex itself is a little bit tricky. There are three submatches:
 #     - [1] a quoting character (single quote, double quote and backtick)
