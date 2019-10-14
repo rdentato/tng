@@ -1,40 +1,31 @@
 #!/usr/bin/bash
 
+do_test () {
+  tng=src/tng$1.sh
+  mv src/tng.sh $tng
+  $tng -n src/tangle_lit.sh
+  diff src/tng.sh src/tng1.sh > /dev/null
+  if [[ $? != 0 ]] ; then 
+    echo "TEST $1 FAILED!!" 1>&2
+  else
+    echo "TEST $1 PASSED!!" 1>&2
+  fi  
+}
+
 if [[ "$1" == "clean" ]] ; then
   rm -f src/~[ABC]~*
-  rm -f src/tng.sh src/tng0.sh src/tng1.sh
+  rm -f src/tng.sh src/tng[0123].sh
   exit
 fi
 
 chmod +x src/tangle_boot.sh
-
 src/tangle_boot.sh -n src/tangle_lit.sh
 chmod +x src/tng.sh
 
-if [[ "$1" == "test" ]] ; then
-  mv src/tng.sh src/tng0.sh
-  src/tng0.sh -n src/tangle_lit.sh
-  diff src/tng.sh src/tng0.sh > /dev/null
-  if [[ $? != 0 ]] ; then 
-    echo "TEST 1 FAILED!!" 1>&2
-  else
-    echo "TEST 1 PASSED!!" 1>&2
-  fi
-fi
+if [[ "$1" == "test" ]] ; then do_test 1 ; fi
 
 # Final cleanup
-
 sed -i -e 's/ *# .*//' -e '/^[ #]*$/d' src/tng.sh
 
-if [[ "$1" == "test" ]] ; then
-  mv src/tng.sh src/tng1.sh
-  src/tng1.sh -n src/tangle_lit.sh
-  diff src/tng.sh src/tng0.sh > /dev/null
-  if [[ $? != 0 ]] ; then 
-    echo "TEST 2 FAILED!!" 1>&2
-  else
-    echo "TEST 2 PASSED!!" 1>&2
-  fi
-  mv src/tng1.sh src/tng.sh
-fi
-
+# Redo tests (just to play safe)
+if [[ "$1" == "test" ]] ; then do_test 2 ; fi
