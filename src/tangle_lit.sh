@@ -79,7 +79,8 @@ tangle () {
   # Remove leftovers from previous run just to stay safe
   # (:Remove temp files)
   
-  # (:Handle command line options)  
+  # (:Handle command line options) 
+  # (:Get options) 
   # (:Check that all files exist)
   # (:Split the chunks)
   # (:Reassemble files)
@@ -307,11 +308,6 @@ lnum=1
 # (after:Global Declaration)
 declare -g -i prtln ; prtln=1  # 1: print it  0: don't
 
-# (after:Handle command line options)  
-if [[ "$1" == "-n" ]] ; then
-  prtln=0 ; shift
-fi
-
 # (after: Functions)
 prtlnum () {
   if (( $prtln )) ; then
@@ -340,3 +336,31 @@ for fname in "$@" ; do
     echo "Missing file: $fname" 1>&2 ; exit
   fi
 done
+
+# ## Options
+# (after: Get options)
+  local opts=1
+  while [[ $opts = 1 ]] ; do
+    case "$1" in 
+      -h)  usage 0 ;; 
+      -n)  prtln=0 ; shift ;;
+      -?)  usage 1 ;;
+       *)  opts=0 ;; 
+    esac 
+  done
+
+# (after: Global functions)
+
+usage () {
+  echo "tng [-n] file [file ...]" 1>&2
+  echo "Version: $tng_ver_str ($tng_ver)" 1>&2
+  echo "Options:   -n   no #line directives" 1>&2
+  echo "           -h   help" 1>&2
+  exit $1
+}
+
+# ## Version
+#   Useful to track the version in use
+# (after:Global Declaration)
+tng_ver=0x0001001C
+tng_ver_str="0.1.1-RC"

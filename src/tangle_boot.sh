@@ -1,4 +1,14 @@
 #!/usr/bin/bash
+tng_ver=0x0001001C
+tng_ver_str="0.1.1-RC"
+
+usage () {
+  echo "tng [-n] file [file ...]" 1>&2
+  echo "Version: $tng_ver_str ($tng_ver)" 1>&2
+  echo "Options:   -n   no #line directives" 1>&2
+  echo "           -h   help" 1>&2
+  exit $1
+}
 
 cleanup () {
   rm -f \~[ABC]~*  2> /dev/null
@@ -105,13 +115,22 @@ tangle () {
   quote='["`'"'"']'
   rxdirective='('$quote'?)\('$quote'?([a-z]*):[ '$tab']*([A-Za-z0-9_. '$tab']*)'$quote'?\)'
 
+  local opts=1
+
+  while [[ $opts = 1 ]] ; do
+    case "$1" in 
+      -h)  usage 0 ;; 
+      -n)  prtln=0 ; shift ;;
+      -?)  usage 1 ;;
+       *)  opts=0 ;; 
+    esac 
+  done
+
   # Remove leftovers from previous run
   cleanup
   
-  if [[ "$1" == "-n" ]] ; then
-    prtln=0 ; shift
-  fi
-  
+  if [[ "$1" == "" ]] ; then usage 1 ; fi
+
   for fname in "$@" ; do
     if [[ ! -f "$fname" ]] ; then
       echo "Missing file: $fname" 1>&2 ; exit
