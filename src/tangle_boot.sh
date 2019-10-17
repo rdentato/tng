@@ -2,6 +2,13 @@
 tng_ver=0x0001001C
 tng_ver_str="0.1.1-RC"
 
+declare -g -i prtln   ; prtln=1
+declare -g -i outln
+declare -g -i lnum
+declare -g -l chunk
+
+shopt -s extglob
+
 usage () {
   echo "tng [-n] file [file ...]" 1>&2
   echo "Version: $tng_ver_str ($tng_ver)" 1>&2
@@ -102,35 +109,15 @@ reassemble () {
 
 tangle () {
 
-  declare -g -i prtln   ; prtln=1
-  declare -g -i outln
-  declare -g -i lnum
-  declare -g -l chunk
-  
-  shopt -s extglob
-
   #    v-------------------------------------------------------
   tab='	'  # BEWARE THE LITERAL TAB within quotes ('\x09')!!!!
   #    ^-------------------------------------------------------
   quote='["`'"'"']'
   rxdirective='('$quote'?)\('$quote'?([a-z]*):[ '$tab']*([A-Za-z0-9_. '$tab']*)'$quote'?\)'
 
-  local opts=1
-
-  while [[ $opts = 1 ]] ; do
-    case "$1" in 
-      -h)  usage 0 ;; 
-      -n)  prtln=0 ; shift ;;
-      -?)  usage 1 ;;
-       *)  opts=0 ;; 
-    esac 
-  done
-
   # Remove leftovers from previous run
   cleanup
   
-  if [[ "$1" == "" ]] ; then usage 1 ; fi
-
   for fname in "$@" ; do
     if [[ ! -f "$fname" ]] ; then
       echo "Missing file: $fname" 1>&2 ; exit
@@ -143,5 +130,15 @@ tangle () {
   # Cleanup temp files
   cleanup
 }
+
+opts=1
+while [[ $opts = 1 ]] ; do
+  case "$1" in 
+        -h)  usage 0 ;; 
+        -n)  prtln=0 ; shift ;;
+   "" | -?)  usage 1 ;;
+         *)  opts=0 ;; 
+  esac 
+done
 
 tangle "$@"

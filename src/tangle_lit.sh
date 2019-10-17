@@ -79,8 +79,6 @@ tangle () {
   # Remove leftovers from previous run just to stay safe
   # (:Remove temp files)
   
-  # (:Handle command line options) 
-  # (:Get options) 
   # (:Check that all files exist)
   # (:Split the chunks)
   # (:Reassemble files)
@@ -88,7 +86,7 @@ tangle () {
   # Cleanup temp files
   # (:Remove temp files)
 }
-
+# (:Get options) 
 tangle "$@"
 
 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -276,7 +274,7 @@ declare -g -l chunk
 
 # (after: Functions)
 getchunkname () {
-  #chunk=$(echo "$1" | sed -e 's/\s\s*/~/g' -e 's/~~*$//' )
+  # chunk=$(echo "$1" | sed -e 's/\s\s*/~/g' -e 's/~~*$//' )
   chunk="$1"
   chunk=${chunk%%+([[:space:]])}      # <---+- thanks to shopt -s below
   chunk=${chunk//+([[:space:]])/'~'}  # <--/
@@ -339,13 +337,13 @@ done
 
 # ## Options
 # (after: Get options)
-  local opts=1
+  opts=1
   while [[ $opts = 1 ]] ; do
     case "$1" in 
-      -h)  usage 0 ;; 
-      -n)  prtln=0 ; shift ;;
-      -?)  usage 1 ;;
-       *)  opts=0 ;; 
+          -h)  usage 0 ;; 
+          -n)  prtln=0 ; shift ;;
+     "" | -?)  usage 1 ;;
+           *)  opts=0 ;; 
     esac 
   done
 
