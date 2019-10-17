@@ -18,6 +18,11 @@ if [[ "$1" == "clean" ]] ; then
   exit
 fi
 
+if [[ "$1" != ""  && "$1" != "test" ]] ; then
+  echo "Usage: bld [clean|test]" 1>&2 
+  exit
+fi
+
 chmod +x src/tangle_boot.sh
 src/tangle_boot.sh -n src/tangle_lit.sh
 chmod +x src/tng.sh
