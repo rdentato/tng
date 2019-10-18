@@ -57,6 +57,12 @@
 # Here I've used mostly MarkDown syntax since many programmers are already
 # familiar with that syntax. 
 
+# ## Version
+#   Useful to track the version in use
+# (after:Global Declaration)
+tng_ver=0x0001001C
+tng_ver_str="0.1.1-RC"
+
 # ## The `tangle` script
 #
 #   To keep things simple, `tangle` it has been developed as a bash script.
@@ -357,8 +363,3 @@ usage () {
   exit $1
 }
 
-# ## Version
-#   Useful to track the version in use
-# (after:Global Declaration)
-tng_ver=0x0001001C
-tng_ver_str="0.1.1-RC"
