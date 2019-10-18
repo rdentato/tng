@@ -60,8 +60,8 @@
 # ## Version
 #   Useful to track the version in use
 # (after:Global Declaration)
-tng_ver=0x0001001C
-tng_ver_str="0.1.1-RC"
+tng_ver=0x0001002F
+tng_ver_str="0.1.2"
 
 # ## The `tangle` script
 #
@@ -189,6 +189,7 @@ reassemble () {
 
   declare -i doreassemble; doreassemble=1
   declare -i numpass; numpass=0
+
   while (( $doreassemble && $numpass < 10 )) ; do
     doreassemble=0
     numpass+=1
@@ -205,7 +206,7 @@ reassemble () {
         code) bname="$args" ;;
       esac
     done < "$cname" > "~C~"
-    mv "~C~" "$cname" 
+    mv "~C~" "$cname"
   done
   mv "$cname" "$dname$bname"
 }
@@ -225,6 +226,7 @@ quote='["`'"'"']'  # <-- This confusing sequence of quotes is just ['"`]
 
 rxdirective='('$quote'?)\('$quote'?([a-z]*):[ '$tab']*([A-Za-z0-9_. '$tab']*)'$quote'?\)'
 
+# (:)
 #   The regex itself is a little bit tricky. There are three submatches:
 #     - [1] a quoting character (single quote, double quote and backtick)
 #     - [2] the directive (only lowercase characters)
@@ -248,7 +250,9 @@ if [[ "$line" =~ $rxdirective && -z "${BASH_REMATCH[1]}" ]] ; then
   args="${BASH_REMATCH[3]}"
   getchunkname "$args"   # handle chunk name
 fi
+if [[ -z $chunk && -z $directive ]] ; then directive="text" ; fi
 
+# (:)
 # ### Handling chunk names
 #
 #   To enable some expressiveness, we must give flexibility on the waypoint

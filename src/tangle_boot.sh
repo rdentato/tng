@@ -1,6 +1,6 @@
 #!/usr/bin/bash
-tng_ver=0x0001001C
-tng_ver_str="0.1.1-RC"
+tng_ver=0x0001002F
+tng_ver_str="0.1.2"
 
 declare -g -i prtln   ; prtln=1
 declare -g -i outln
@@ -40,6 +40,7 @@ checkdirective () {
     args="${BASH_REMATCH[3]}"
     getchunkname "$args"
   fi
+  if [[ -z $chunk && -z $directive ]] ; then directive="text" ; fi
 }
 
 getchunkname () {
@@ -102,7 +103,7 @@ reassemble () {
         code) bname="$args" ;;
       esac
     done < "$cname" > "~C~"
-    mv "~C~" "$cname" 
+    mv "~C~" "$cname"
   done
   mv "$cname" "$dname$bname"
 }

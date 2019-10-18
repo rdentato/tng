@@ -30,7 +30,7 @@ To cleanup:
 The syntax is inspired by a post on [Kartik Agaram's blog](http://akkartik.name/post/wart-layers).
 
    - `(code:[filename])`
-   - `(text:[filename])`
+   - `(text:[filename])`  or just `(:)`
    - `(after:<waypoint>)`
    - `(before:<waypoint>)`
    - `(:<waypoint>)`
