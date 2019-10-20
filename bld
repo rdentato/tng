@@ -30,7 +30,7 @@ chmod +x src/tng.sh
 if [[ "$1" == "test" ]] ; then do_test 1 ; fi
 
 # Final cleanup
-sed -i -e 's/ *# .*//' -e '/^[ #]*$/d' src/tng.sh
+sed -i -e 's/ *# .*//' -e '/^[ #]*$/d' -e 's/^  *//' src/tng.sh
 
 # Redo tests (just to play safe)
 if [[ "$1" == "test" ]] ; then do_test 2 ; fi
