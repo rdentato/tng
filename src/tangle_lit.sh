@@ -129,9 +129,9 @@ splitchunks () {
   while IFS= read -r line || [[ -n "$line" ]] ; do
     lnum+=1
     directive="~"
-    # Set `directive`, `args` and `chunk` if there is a directive in the line
     # (:Check directive in line) 
     case $directive in
+                # (:Handle void directive)
          after) curfile="~A~$chunk" ; prtlnum ;;
         before) curfile="~B~$chunk" ; prtlnum ;;
           code) curfile="$cname"    ; prtlnum 
@@ -245,14 +245,20 @@ rxdirective='('$quote'?)\('$quote'?([a-z]*):[ '$tab']*([A-Za-z0-9_. '$tab']*)'$q
 # output file name (see the section "Setting output file name" above)
 
 # (after:Check directive in line)
-if [[ "$line" =~ $rxdirective && -z "${BASH_REMATCH[1]}" ]] ; then
-  directive="${BASH_REMATCH[2]}"
-  args="${BASH_REMATCH[3]}"
-  getchunkname "$args"   # handle chunk name
-fi
-if [[ -z $chunk && -z $directive ]] ; then directive="text" ; fi
+checkdirective
 
+# (after: Functions)
+checkdirective () {
+  if [[ "$line" =~ $rxdirective && -z "${BASH_REMATCH[1]}" ]] ; then
+    directive="${BASH_REMATCH[2]}"
+    args="${BASH_REMATCH[3]}"
+    getchunkname "$args"   # handle chunk name
+  fi
+  if [[ -z $chunk && -z $directive ]] ; then directive="text" ; fi
+  # (:Handle void)
+}
 # (:)
+
 # ### Handling chunk names
 #
 #   To enable some expressiveness, we must give flexibility on the waypoint
@@ -294,6 +300,40 @@ getchunkname () {
 # This enables the extended matching for Bash string substitution.
 shopt -s extglob
 
+
+# ### Void
+#   It is sometimes useful to have a way to suspend the interpretation
+# of tangling directives.
+# This can be done by useing the `(void:xxx)` that will make transparent
+# all the lines untile another `(void:xxx)` is encountered (with the 
+# *same* string `xxx`, of course)
+#
+#   We'll hold the string that has been specified in the `void` variable.
+
+# (after: Handle void)
+  if [[ -z $void ]] ; then
+    #   If it's empty, it means that we are not *"in the void"*, so we check
+    # if the `(void:xxxx)` directive has been 
+    if [[ "$directive" = "void" ]] ; then
+      if [[ -z $args ]] ; then error "Invalid '(void:xxx)' directive'" ; fi
+      void=$args
+    fi
+  else
+    if [[ "$directive" = "void" && "$void" = "$args" ]] ; then
+      void=""
+    fi
+    directive="void"
+  fi
+
+# (after:Handle void directive)
+#   When in a *void* we still have to print an empty line to avoid messing up
+# the line numbering.
+
+  void) if [[ "$curfile" != "~" ]] ; then echo >> "$curfile" ; fi ;;
+
+# (:)
+
+
 # ## Printing `#line` 
 #
 #   As it is customary for preprocessors, tangle will insert into 
@@ -333,7 +373,7 @@ rm -f \~[ABC]~* 2> /dev/null
 # The `error` function
 # (after: Functions)
 error () {
-  echo "ERROR: $1. $fname:$((lnum-1))" 1>&2 
+  echo "Error: $1. $fname:$((lnum-1))" 1>&2 
   # (:Remove temp files)
   exit
 }

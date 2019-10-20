@@ -22,7 +22,7 @@ cleanup () {
 }
 
 error () {
-  echo "ERROR: $1. $fname:$((lnum-1))" 1>&2 
+  echo "Error: $1. $fname:$((lnum-1))" 1>&2 
   cleanup
   exit
 }
@@ -41,6 +41,17 @@ checkdirective () {
     getchunkname "$args"
   fi
   if [[ -z $chunk && -z $directive ]] ; then directive="text" ; fi
+  if [[ -z $void ]] ; then
+    if [[ "$directive" = "void" ]] ; then
+      if [[ -z $args ]] ; then error "Invalid '(void:xxx)' directive'" ; fi
+      void=$args
+    fi
+  else
+    if [[ "$directive" = "void" && "$void" = "$args" ]] ; then
+      void=""
+    fi
+    directive="void"
+  fi
 }
 
 getchunkname () {
@@ -56,12 +67,15 @@ splitchunks () {
   curfile=$cname
   lnum=1
   outln=-1
+  void=""
   prtlnum
   while IFS= read -r line || [[ -n "$line" ]] ; do
     lnum+=1
     directive="~"
     checkdirective
     case $directive in
+          void) # write an empty line to avoid messing up with line numbering
+                if [[ "$curfile" != "~" ]] ; then echo >> "$curfile" ; fi ;;
          after) curfile="~A~$chunk" ; prtlnum ;;
         before) curfile="~B~$chunk" ; prtlnum ;;
           code) curfile="$cname"    ; prtlnum 
@@ -74,7 +88,7 @@ splitchunks () {
                 fi
                 ;;
           text) curfile="~" ;;
-            "") echo "$line" >> "$curfile" ; prtlnum ;;
+            "") echo "$line" >> "$curfile" ; prtlnum ;; # Target
            "~") if [[ "$curfile" != "~" ]] ; then echo "$line" >> "$curfile" ; fi ;;
              *) error "Unknown directive '$directive'" ;;
     esac
