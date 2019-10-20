@@ -34,6 +34,7 @@ The syntax is inspired by a post on [Kartik Agaram's blog](http://akkartik.name/
    - `(after:<waypoint>)`
    - `(before:<waypoint>)`
    - `(:<waypoint>)`
+   - `(void:<string>)` suspend interpretation of directives until next `(void:<string>)` (with the *same* string)
 
 Read the source code of `tangle_lit.sh` for further details
 and for a live demonstration of how they work.
