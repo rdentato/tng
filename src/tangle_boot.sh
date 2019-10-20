@@ -1,6 +1,6 @@
 #!/usr/bin/bash
-tng_ver=0x0001002F
-tng_ver_str="0.1.2"
+tng_ver=0x0001003F
+tng_ver_str="0.1.3"
 
 declare -g -i prtln   ; prtln=1
 declare -g -i outln

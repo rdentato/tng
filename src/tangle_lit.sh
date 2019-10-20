@@ -58,10 +58,10 @@
 # familiar with that syntax. 
 
 # ## Version
-#   Useful to track the version in use
+#   Useful to check the version in use
 # (after:Global Declaration)
-tng_ver=0x0001002F
-tng_ver_str="0.1.2"
+tng_ver=0x0001003F
+tng_ver_str="0.1.3"
 
 # ## The `tangle` script
 #
@@ -334,7 +334,7 @@ rm -f \~[ABC]~* 2> /dev/null
 # (after: Functions)
 error () {
   echo "ERROR: $1. $fname:$((lnum-1))" 1>&2 
-  cleanup
+  # (:Remove temp files)
   exit
 }
 
