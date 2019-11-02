@@ -60,8 +60,8 @@
 # ## Version
 #   Useful to check the version in use
 # (after:Global Declaration)
-tng_ver=0x0001003F
-tng_ver_str="0.1.3"
+tng_ver=0x0001004F
+tng_ver_str="0.1.4"
 
 # ## The `tangle` script
 #
@@ -72,7 +72,10 @@ tng_ver_str="0.1.3"
 # vvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 # (code:tng.sh)
-#!/usr/bin/bash
+#!/usr/bin/env bash
+#: tng (c) 2019 Remo Dentato
+#: https://github.com/rdentato/tng
+#
 
 # (:Global Declaration)
 # (:Regex for recognizing directives)  
@@ -304,7 +307,7 @@ shopt -s extglob
 # ### Void
 #   It is sometimes useful to have a way to suspend the interpretation
 # of tangling directives.
-# This can be done by useing the `(void:xxx)` that will make transparent
+# This can be done by using `(void:xxx)` that will make transparent
 # all the lines untile another `(void:xxx)` is encountered (with the 
 # *same* string `xxx`, of course)
 #
@@ -345,7 +348,7 @@ shopt -s extglob
 # (after:Global Declaration)
 declare -g -i lnum
 
-# (:Initialize line number)
+# (after:Initialize line number)
 #   During the split phase, the line number will be initialized 
 # for each file
 lnum=1

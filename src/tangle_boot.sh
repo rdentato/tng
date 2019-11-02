@@ -1,6 +1,9 @@
-#!/usr/bin/bash
-tng_ver=0x0001003F
-tng_ver_str="0.1.3"
+#!/usr/bin/env bash
+# tng (c) 2019 Remo Dentato
+# https://github.com/rdentato/tng
+
+tng_ver=0x0001004F
+tng_ver_str="0.1.4"
 
 declare -g -i prtln   ; prtln=1
 declare -g -i outln
