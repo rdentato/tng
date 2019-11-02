@@ -60,8 +60,8 @@
 # ## Version
 #   Useful to check the version in use
 # (after:Global Declaration)
-tng_ver=0x0001004F
-tng_ver_str="0.1.4"
+tng_ver=0x0001005F
+tng_ver_str="0.1.5"
 
 # ## The `tangle` script
 #
@@ -400,11 +400,13 @@ done
     esac 
   done
 
-# (after: Global functions)
+# (after: functions)
 
 usage () {
   echo "tng [-n] file [file ...]" 1>&2
   echo "Version: $tng_ver_str ($tng_ver)" 1>&2
+  echo "(C) 2019 Remo Dentato " 1>&2
+   
   echo "Options:   -n   no #line directives" 1>&2
   echo "           -h   help" 1>&2
   exit $1

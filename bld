@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# tng (c) 2019 Remo Dentato
+# https://github.com/rdentato/tng
 
 do_test () {
   tng=src/tng$1.sh
