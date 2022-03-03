@@ -11,19 +11,19 @@ To build the *final* version of the script (`tng.sh`), use
 the `bld` script in the root directory:
 
 ```
-  ~/tng $ bld
+  ~/tng $ ./bld
 ```
 
 To test that everything is working properly use:
 
 ```
-  ~/tng $ bld test
+  ~/tng $ ./bld test
 ```
 
 To cleanup:
 
 ```
-  ~/tng $ bld clean
+  ~/tng $ ./bld clean
 ```
 
 ## Syntax
