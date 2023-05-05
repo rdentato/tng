@@ -3,7 +3,7 @@
 # ## Introduction
 #
 #   This is the *tangle* tool for a very simple literate programming
-# system called `tng`. I will assume you alrady know about literate
+# system called `tng`. I will assume you already know about literate
 # programming and will just recall some basic concepts. See the
 # [Wikipedia](https://en.wikipedia.org/wiki/Literate_programming)
 # article for more information on Literate Programming.
@@ -26,13 +26,13 @@
 #   To me, the key points are:
 #
 #     - Source code must be readable in their native, unwaved form
-#     - tangle helps keep close, in the file, elements that are
+#     - tangle helps keeping close, in the file, elements that are
 #       logically related so that their interaction can be explained
 #       (and understood) more easily.
 #
 # ## Syntax
 #  
-#   While the tool poseno restriction on the syntax, it is assumed that
+#   While the tool poses no restriction on the syntax, it is assumed that
 # the file will retain a structure that makes it a more or less avalid
 # source file for the language at hand.
 #   It might not actually run/compile in its untangled form, but its look 
@@ -49,9 +49,27 @@
 #    - `(after:<waypoint>)`   
 #    - `(before:<waypoint>)`
 #    - `(:<waypoint>)`
+#    - '(:)' an empty waypoint marks the end of a code section
 #
-#   By the way, those above won't be recognized as directives since they are 
-# within quotes.
+#   Directives can appear anywhere in a line and the entire line will be
+# ignored. Please note that this is means you can't write something like:
+# (void:example)
+# ```
+#    if (x>0) (:Handle positives)  // THe entire line will be removed
+# ```
+# (void:example)
+#
+# but you'll need to write:
+#
+# (void:example)
+# ```
+#    if (x>0) 
+#      (:Handle positives)
+# ```
+# (void:example)
+#
+#   By the way, note the use of the `(void:xxx)` directive and quotes to
+# be able to "talk" about directives without having them recognized as such.
 #
 #   There is no limitation no the way you write your *text* sections.
 # Remember that the assumption is that the file will be mostly used in its
@@ -62,12 +80,12 @@
 # ## Version
 #   Useful to check the version in use
 $(after:Global Declaration)
-tng_ver=0x0001005F
-tng_ver_str="0.1.5"
+tng_ver=0x0001006F
+tng_ver_str="0.1.6"
 
 # ## The `tangle` script
 #
-#   To keep things simple, `tangle` it has been developed as a bash script.
+#   To keep things simple, `tangle` has been developed as a bash script.
 # This sections provides a very high level of the script.
 
 # NOTE: The script starts here! 
@@ -111,7 +129,7 @@ $(:)
 #   This is the core of the first pass: each file is parsed and the
 # directives are used to separate the pieces.
 #
-$(after:Split the chunks)
+$(after:Split the chunks)=
 for fname in "$@" ; do splitchunks ; done
 
 #  The `splitchunks` functions do the grunt work. It will parse the
@@ -145,9 +163,9 @@ splitchunks () {
           code) curfile="$cname"    ; prtlnum 
                 $(:Check output filename)
                 ;;
-          text) curfile="~" ;;
+          text) curfile="~~" ;;
             "") echo "$line" >> "$curfile" ; prtlnum ;;
-           "~") if [[ "$curfile" != "~" ]] ; then echo "$line" >> "$curfile" ; fi ;;
+           "~") if [[ "$curfile" != "~~" ]] ; then echo "$line" >> "$curfile" ; fi ;;
              *) error "Unknown directive '$directive'" ;;
     esac    
   done < "$fname"
@@ -281,7 +299,7 @@ $(:)
 #     - Sequence of spaces are collapsed into a single space
 #     - Spaces are replaced with `~` (to create an easier to handle filename)
 #
-#   All the following directives are the same:
+#   All the following directives are equivalent:
 #     -  `(after: Do fancy stuff)`
 #     -  `(after:Do fancy stuff)`
 #     -  `(after: Do Fancy STUFF)`
