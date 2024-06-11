@@ -19,7 +19,7 @@ int myfunction(int x)
 
 CHUNK('after: do your stuff')
 {
-  printf("%d\n",p+x); // p and x are uknown :(
+  printf("%d\n",p+x); // p and x are uknown to the IDE :(
 }
 
 CHUNK("before: do your stuff")

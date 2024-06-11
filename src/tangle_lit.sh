@@ -250,13 +250,13 @@ tab='	'  # BEWARE THE LITERAL TAB within quotes ('\x09')!!!!
 
 quote='["`'"'"']'  # <-- This confusing sequence of quotes is just ['"`]
 
-rxdirective='('$quote'?)\('$quote'?([a-z]*):[ '$tab']*([A-Za-z0-9_. '$tab']*)'$quote'?\)'
+rxdirective='('$quote'?)\('$quote'?([a-z]*):[ '$tab']*([A-Za-z0-9_,. '$tab']*)'$quote'?\)'
 
 $(:)
 #   The regex itself is a little bit tricky. There are three submatches:
 #     - [1] a quoting character (single quote, double quote and backtick)
 #     - [2] the directive (only lowercase characters)
-#     - [3] a string of characters (only alphanumeric, `.`, `_` and spaces allowed )
+#     - [3] a string of characters (only alphanumeric, `.`, `_`, ',' and spaces allowed )
 #
 #   The submatch [1] is used to allow the inclusion of a directive-like string in
 # the source file without it being treated as such. For example: `(a:b)` is not
