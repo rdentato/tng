@@ -81,26 +81,26 @@ chunk of codes and then the output file is reassembled.
   the `extlibs` directory.
 */
 
-_('code:tng.c')
+_("code:tng.c")
 #define _(...)
 
-_(':Includes')
+_(":Includes")
 
-_(':Global vars')
-_(':Functions')
+_(":Global vars")
+_(":Functions")
 
 int main(int argc, char *argv[]) {
 
-  _(':Initialize the variables and data structures.') 
-  _(':Command Line Interface')
+  _(":Initialize the variables and data structures.") 
+  _(":Command Line Interface")
 
   try {
-    _(':Parse input files')
-    _(':Reassemble chunks into output file')
+    _(":Parse input files")
+    _(":Reassemble chunks into output file")
   }
-  _(':Handle errors')
+  _(":Handle errors")
 
-  _(':Cleanup')
+  _(":Cleanup")
 
 }
 
@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
 in the order they are specified on the command line.
 
 */
-_('after: Global vars')
+_("after: Global vars")
 char **filelist = NULL;
 
 /* (:)
@@ -140,7 +140,7 @@ past all the options.
 The first element of `filelist` (i.e. `filelist[0]`) will be "src1"
 
 */
-_('after: CLI action to set the list of files to be parsed.')
+_("after: CLI action to set the list of files to be parsed.")
 vrgarg("filename ...\tThe files to be processed") {
   filelist = &argv[vrgargn-1];
   break;
@@ -163,14 +163,14 @@ in a buffer hold in the `code_chunk` variable.
 */
 
 
-_('after:Global vars')
+_("after:Global vars")
 val_t code_chunk = valnil;  // The code chunk
 
-_('after:Initialize the variables and data structures.')
+_("after:Initialize the variables and data structures.")
 code_chunk = bufnew();
 if (valisnil(code_chunk)) throw(EX_OUTOFMEM,"");
 
-_('after:Cleanup')
+_("after:Cleanup")
 code_chunk = buffree(code_chunk);
 
 /* (:)
@@ -178,14 +178,14 @@ code_chunk = buffree(code_chunk);
 by the variable `chunks`.
 */
 
-_('after:Global vars')
+_("after:Global vars")
 val_t chunks = valnil;      // The after/before chunks
 
-_('after:Initialize the variables and data structures.')
+_("after:Initialize the variables and data structures.")
 chunks = vecnew();
 if (valisnil(chunks)) throw(EX_OUTOFMEM,"");
 
-_('after:Cleanup')
+_("after:Cleanup")
 chunks = vecfree(chunks);
 bufclearstore(); // free up the stored keys.
 
@@ -199,10 +199,10 @@ will return the buffer containing the text that goes after the `Initializae engi
 waypoint.
 */
 
-_('before: Global vars')
+_("before: Global vars")
 val_t getbuffer(char prefix, char *waypoint);
 
-_('after:Functions')
+_("after:Functions")
 val_t getbuffer(char prefix, char *waypoint)
 {
   val_t cname;
@@ -263,10 +263,10 @@ using different strings for the same waypoint, but subtle variations
 (like the space at the beginning) shoud be accomadated for by the tool.
 */
 
-_('after:Global vars')
+_("after:Global vars")
 char *to_chunkname(char prefix, char *s);
 
-_('after:Functions')
+_("after:Functions")
 char *to_chunkname(char prefix, char *s)
 {
   static char name[128];
@@ -309,26 +309,26 @@ char *to_chunkname(char prefix, char *s)
   use the CLI option `-o` to specify which file should be created.
 */
 
-_('after: Global vars')
+_("after: Global vars")
 char *out_filename = NULL;
 FILE *out_file;
 
-_('after:Initialize the variables and data structures.')
+_("after:Initialize the variables and data structures.")
 out_file = stdout;
 out_filename = NULL;
 
-_('after: CLI action to set the output file name')
+_("after: CLI action to set the output file name")
 vrgarg("-o, --outfile outfilename\tThe output file (defaults to stdout)") {
   out_filename = vrgarg;
   out_file = fopen(out_filename,"wb");
   if (out_file == NULL) vrgerror("Unable to write on '%s'\n",out_filename);
 }
 
-_('after:cleanup')
+_("after:cleanup")
 if (out_filename) fclose(out_file);
 
 
-_('after: Global vars')
+_("after: Global vars")
 val_t cur_buffer = valnil;
 
 /* (:)
@@ -339,7 +339,7 @@ by the C standard (5.1.2.2.1) that the last element of the array is a
 pointer to `NULL`.
 */
 
-_('after:Parse input files')
+_("after:Parse input files")
 { char **fname = filelist;
   while (*fname) {
     parsefile(*fname);
@@ -354,20 +354,20 @@ stored in the `linebuf` buffer.
   The variable `linenum` carries the current line number.
 */
 
-_('after: Global vars')
+_("after: Global vars")
 val_t linebuf = valnil;
 int linenum = 0;
 
-_('after:Initialize the variables and data structures.')
+_("after:Initialize the variables and data structures.")
 linebuf = bufnew();
 if (valisnil(linebuf)) throw(EX_OUTOFMEM, "");
 
-_('after:Cleanup')
+_("after:Cleanup")
 linebuf = buffree(linebuf);
 
-_('after:Read a line')
+_("after:Read a line")
 buflen(linebuf,0);
-bufloadln(linebuf, f);
+bufloadln(linebuf, source_file);
 linenum += 1;
 
 /* (:)
@@ -376,10 +376,10 @@ the input files, extracting the chunk of codes and putting them
 in the appropriate buffers.
 */
 
-_('after:Functions')
+_("after:Functions")
 int parsefile(char *file_name)
 {
-  _(':Parsing variables')
+  _(":Parsing variables")
 
   FILE *source_file; 
   source_file = fopen(file_name,"rb");
@@ -390,12 +390,12 @@ int parsefile(char *file_name)
   cur_buffer = code_chunk;
 
   while (!feof(source_file)) {
-    _(':Read a line')
-    _(':Identify tags. Sets tag, tag_arg and tag_indent')
-    _(':Handle tags')
+    _(":Read a line")
+    _(":Identify tags. Sets tag, tag_arg and tag_indent")
+    _(":Handle tags")
   }
 
-  fclose(f);
+  fclose(source_file);
   return 0;
 }
 
@@ -404,7 +404,7 @@ int parsefile(char *file_name)
   ### Recognizing Tags
 */
 
-_('before: Global vars')
+_("before: Global vars")
 #define TAG_NONE     0
 #define TAG_TEXT     1
 #define TAG_EMPTY    2
@@ -416,7 +416,7 @@ _('before: Global vars')
 #define TAG_INVOID   8
 #define TAG_EXVOID   9
 
-_('after: parsing variables')
+_("after: parsing variables")
 int   tag = TAG_NONE;
 char *tag_arg = NULL;
 int   tag_indent = 0;
@@ -424,7 +424,7 @@ char  voidstr[32];
       voidstr[0] = '\0';
 char *bufstr;
 
-_('after:Identify tags. Sets tag, tag_arg and tag_indent')
+_("after:Identify tags. Sets tag, tag_arg and tag_indent")
 {
   bufstr = buf(linebuf,0)
   _dbgtrc("ln: '%s'",bufstr);
@@ -434,15 +434,15 @@ _('after:Identify tags. Sets tag, tag_arg and tag_indent')
   tag_indent = 0;
 
   if (voidstr[0] != '\0') { // We are in the void
-    _(':Check if we are at the end of void')
+    _(":Check if we are at the end of void")
   }
 
   if (tag == TAG_NONE) {
-    _(':Look for a tag')
+    _(":Look for a tag")
   }
 }
 
-_('after:Check if we are at the end of void')
+_("after:Check if we are at the end of void")
 {
   tag = TAG_INVOID;
   char *s = bufstr;
@@ -458,7 +458,7 @@ _('after:Check if we are at the end of void')
   } 
 }
 
-_('after:Look for a tag')
+_("after:Look for a tag")
 char *s = bufstr;
 
 while (*s && *s != '(') {
@@ -482,7 +482,7 @@ if (*s == '(') {
   else if (strncmp("void:",s,5) == 0)   { tag = TAG_VOID;     s += 5; }
     
   if (tag != TAG_NONE) {
-    _(': Zero terminate the argument')
+    _(": Zero terminate the argument")
     if (tag == TAG_WAYPOINT && *tag_arg == '\0') {
       tag = TAG_EMPTY;
       tag_arg = NULL;
@@ -490,7 +490,7 @@ if (*s == '(') {
   }
 }
 
-_('after: Zero terminate the argument')
+_("after: Zero terminate the argument")
 {
   char *e = s;
 
@@ -519,10 +519,10 @@ _('after: Zero terminate the argument')
 
 */
 
-_('after:Parsing Variables')
+_("after:Parsing Variables")
 int code = 0;
 
-_('after:Handle tags')
+_("after:Handle tags")
 switch (tag) {
 
   case TAG_EMPTY:    code = 0; _dbgtrc("EMPTY (%s)",bufstr); break;
@@ -537,25 +537,25 @@ switch (tag) {
 
   case TAG_WAYPOINT: if (code) { 
                         bufprintf(cur_buffer, "\x1B%08d %s\x1E\n",tag_indent, tag_arg);
-                        _(': Emit line number')
+                        _(": Emit line number")
                         _dbgtrc("WAYPOINT: %s",tag_arg ); 
                      }
                      break;
 
   case TAG_BEFORE:   cur_buffer = getbuffer('B',tag_arg);
-                     _(': Emit line number')
+                     _(": Emit line number")
                      code = 1;
                      _dbgtrc("BEFORE '%s'",tag_arg); 
                      break;
 
   case TAG_AFTER:    cur_buffer = getbuffer('A',tag_arg); 
-                     _(': Emit line number')
+                     _(": Emit line number")
                      code = 1; 
                      _dbgtrc("AFTER '%s'",tag_arg); 
                      break;
 
   case TAG_CODE:     cur_buffer = code_chunk;
-                     _(': Emit line number')
+                     _(": Emit line number")
                      code = 1;
                      _dbgtrc("CODE '%s'",tag_arg);
                      break;
@@ -563,7 +563,7 @@ switch (tag) {
   case TAG_VOID:     if (tag_arg && tag_arg[0]) {
                        strncpy(voidstr,tag_arg,31);
                        voidstr[31] ='\0';
-                       _(': Emit line number')
+                       _(": Emit line number")
                      }
                      _dbgtrc("VOID[: '%s'",voidstr);
                      break;
@@ -573,14 +573,14 @@ switch (tag) {
                      break;
 
   case TAG_EXVOID:   
-                     _(': Emit line number')
+                     _(": Emit line number")
                      _dbgtrc("X] %d", linenum);
                      break;
 }
 
-_('after: Emit line number')
+_("after: Emit line number")
 if (!nolinenums) 
-  bufprintf(cur_buffer, "\x1F#line %d \"%s\"\n",linenum+1,filename);
+  bufprintf(cur_buffer, "\x1F#line %d \"%s\"\n",linenum+1,file_name);
 
 _(:)
 
@@ -589,15 +589,15 @@ _(:)
 
 */
 
-_('after:Reassemble chunks into output file')
+_("after:Reassemble chunks into output file")
 // Start from the main code chunk
 reassemble('C',"",0);
 
-_('before: Global Vars')
+_("before: Global Vars")
 // Count nesting level to detect infinite loops
 int count_out_recur = 0;
 
-_('after:functions')
+_("after:functions")
 void reassemble(char prefix, char *name, int indent) {
 
   val_t c;
@@ -640,7 +640,7 @@ void reassemble(char prefix, char *name, int indent) {
   }
 }
 
-_('before: Cleanup');
+_("before: Cleanup");
 /* DEBUG CODE */
 _dbgblk {
   _dbgtrc("Code CHUNK: ");
@@ -669,28 +669,28 @@ _(:)
 **   - `B~xxx` The text to be inserted before waypoint xxx
 **   - `A~xxx` The text to be inserted after waypoint xxx
 */
-_('after:includes')
+_("after:includes")
 #include "val.h"
 
 _(:)
 // ## Commmand line interface
 // Let's use the `vrg.h` facilities for the CLI
-_('after: includes')
+_("after: includes")
 #define VRGCLI
 #include "vrg.h"
 
-_('after: Global vars')
+_("after: Global vars")
 int nolinenums = 0;
 
-_('after: Command line interface')
+_("after: Command line interface")
 vrgcli("version 1.0 (c) by Remo Dentato") {
   vrgarg("-n, --nolinenums\tNo line numbers") {
     nolinenums = 1;
   }
 
-  _(':CLI action to set the output file name')
+  _(":CLI action to set the output file name")
 
-  _(':CLI action to set the list of files to be parsed.')
+  _(":CLI action to set the list of files to be parsed.")
 
   vrgarg("-h, --help\tHelp") {
     vrghelp();
@@ -708,13 +708,13 @@ _(:)
 ## Includes
 Let's park here all the includes needed.
 */
-_('before: includes')
+_("before: includes")
 #include <stdio.h>
 
 _(:)
 
 
-_('before: Functions')
+_("before: Functions")
 static inline int isquote(int c)
 {
   return (c == '\'' || c == '"' || c == '`');
@@ -727,14 +727,14 @@ _(:)
 **   Set up the expetions used
 */
 
-_('after: includes')
+_("after: includes")
 #define exception_info char *msg;
 #include "try.h"
 
-_('after:Global vars')
+_("after:Global vars")
 try_t catch; // initialize the try/catch macros
 
-_('before: Global vars')
+_("before: Global vars")
 // These are the defined exceptions
 #define EX_FILENOTFOUND 1
 #define EX_OUTOFMEM     2
@@ -744,7 +744,7 @@ _('before: Global vars')
 #define EX_DUPLICATEBUF 6
 #define EX_INFINITELOOP 7
 
-_('after:Handle errors')
+_("after:Handle errors")
 catch(EX_FILENOTFOUND) {
   err("File not found: '%s'",exception.msg);
 }
@@ -771,13 +771,13 @@ _(:)
 // ## Debuging & Errors
 //  Set the default level of debugging information
 
-_('before:includes')
-#if !defined(DEGBUG) && !defined(NDEBUG)
+_("before:includes")
+#if !defined(DEBUG) && !defined(NDEBUG)
 #define DEBUG DEBUG_TEST
 #endif
-_('after:includes')
+_("after:includes")
 #include "dbg.h"
 
-_('before:global vars')
+_("before:global vars")
 #define err(...) (fprintf(stderr,"ERROR: " __VA_ARGS__),fputc('\n',stderr))
 
