@@ -405,16 +405,17 @@ int parsefile(char *file_name)
 */
 
 _("before: Global vars")
-#define TAG_NONE     0
-#define TAG_TEXT     1
-#define TAG_EMPTY    2
-#define TAG_CODE     3
-#define TAG_AFTER    4
-#define TAG_BEFORE   5
-#define TAG_VOID     6
-#define TAG_WAYPOINT 7
-#define TAG_INVOID   8
-#define TAG_EXVOID   9
+#define TAG_NONE     0x00
+#define TAG_TEXT     0x01
+#define TAG_EMPTY    0x02
+#define TAG_CODE     0x03
+#define TAG_AFTER    0x04
+#define TAG_BEFORE   0x05
+#define TAG_VOID     0x06
+#define TAG_WAYPOINT 0x07
+#define TAG_INVOID   0x08
+#define TAG_EXVOID   0x09
+#define TAG_TICKS    0x0A
 
 _("after: parsing variables")
 int   tag = TAG_NONE;
@@ -436,8 +437,7 @@ _("after:Identify tags. Sets tag, tag_arg and tag_indent")
   if (voidstr[0] != '\0') { // We are in the void
     _(":Check if we are at the end of void")
   }
-
-  if (tag == TAG_NONE) {
+  else {
     _(":Look for a tag")
   }
 }
@@ -459,33 +459,68 @@ _("after:Check if we are at the end of void")
 }
 
 _("after:Look for a tag")
-char *s = bufstr;
-
-while (*s && *s != '(') {
-  if (isquote(s[0])) s++; // Ignore a '(' if preceded by a quote
-  s++;
-}
+{
+  char *s = bufstr;
   
-tag_indent = s-bufstr;
-while (tag_indent > 0 && !isspace(bufstr[tag_indent-1]))
-  tag_indent -= 1;
+  while (*s && *s != '(') {
+    if (isquote(s[0])) s++; // Ignore a '(' if preceded by a quote
+    s++;
+  }
+    
+  if (*s == '(') {
+    _(": Found a possible tag")
+  }
+  else {
+    _(": Look for three backticks")
+  }
+}
 
-if (*s == '(') {
+_("after: Found a possible tag")
+{
+  tag_indent = s-bufstr;
+  while (tag_indent > 0 && !isspace(bufstr[tag_indent-1]))
+    tag_indent -= 1;
+  
   if (isquote(s[1])) s++; // Ignore a quote right after the '('
   s += 1;
-         
+           
        if (*s == ':')                   { tag = TAG_WAYPOINT; s += 1; }
   else if (strncmp("after:",s,6) == 0)  { tag = TAG_AFTER;    s += 6; }
   else if (strncmp("before:",s,7) == 0) { tag = TAG_BEFORE;   s += 7; }
   else if (strncmp("code:",s,5) == 0)   { tag = TAG_CODE;     s += 5; }
   else if (strncmp("text:",s,5) == 0)   { tag = TAG_TEXT;     s += 5; }
   else if (strncmp("void:",s,5) == 0)   { tag = TAG_VOID;     s += 5; }
-    
+  
   if (tag != TAG_NONE) {
     _(": Zero terminate the argument")
     if (tag == TAG_WAYPOINT && *tag_arg == '\0') {
       tag = TAG_EMPTY;
       tag_arg = NULL;
+    }
+  }
+}
+
+_("after: Look for three backticks")
+{
+  s = bufstr;
+  while (isspace(*s)) s++;
+  if (s[0]=='`' && s[1]=='`' && s[2]=='`') {
+    _dbgtrc("3 ticks! '%s' code:%d",s+3,code);
+    s+=3;
+    if (code) {
+      // There must be nothing else on the line
+      while (*s && isspace(*s)) s++;
+      _dbgtrc("*s == %d",*s);
+      if (*s == '\0') tag = TAG_EMPTY;
+    }
+    else {
+      tag_indent = s-bufstr;
+      while(isspace(*s)) s++;
+      tag_arg = s;
+      while(*s) s++;
+      while(s>tag_arg && isspace(s[-1])) s--;
+      *s='\0';
+      tag = TAG_CODE;
     }
   }
 }
