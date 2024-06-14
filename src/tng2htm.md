@@ -1,9 +1,9 @@
-# 1. Wave for tng
+# Wave for tng
 
-- [1. Wave for tng](#1-wave-for-tng)
-  - [1.1. Command Line Interface](#11-command-line-interface)
-  - [1.2. Standard Includes](#12-standard-includes)
-  - [1.3. Exceptions](#13-exceptions)
+- [Wave for tng](#wave-for-tng)
+  - [Command Line Interface](#command-line-interface)
+  - [Standard Includes](#standard-includes)
+  - [Exceptions](#exceptions)
 
 ```C 
 #define _(...)
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 
 }
 ```
-## 1.1. Command Line Interface
+## Command Line Interface
 
 ```C
 _("after: includes")
@@ -68,7 +68,7 @@ vrgarg("filename ...\tThe files to be processed") {
 }
 ```
 
-## 1.2. Standard Includes
+## Standard Includes
 
 ```C ("before: includes")
 #include <stdio.h>
@@ -76,7 +76,7 @@ vrgarg("filename ...\tThe files to be processed") {
 
 ```
 
-## 1.3. Exceptions
+## Exceptions
   To simplify error handling, we use the exception library `try.h` in
 the `extlibs` directory.
 
