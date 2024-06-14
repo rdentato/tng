@@ -1,4 +1,3 @@
-/* (text:)
  # *tng* - A simple literate programming tangling tool
 
  ## Table of Contents
@@ -71,17 +70,14 @@ compiler only when needed (and in a transparent way).
  Here I've used mostly MarkDown syntax since many programmers are already
  familiar with that syntax. 
 
-*/
-/*
   ## main()  
   The program logic is almost trivial. The files are parsed to collect the
 chunk of codes and then the output file is reassembled.
 
   To simmplify error handling, we use the exception library `try.h` in
   the `extlibs` directory.
-*/
 
-_("code:tng.c")
+```C 
 #define _(...)
 
 _(":Includes")
@@ -103,13 +99,10 @@ int main(int argc, char *argv[]) {
   _(":Cleanup")
 
 }
+```
 
-/* (:)
   ## Parsing the files
-*/
 
-
-/* 
   ### Getting the input files names
 
   The files to be parsed are passed on the command line.
@@ -117,11 +110,11 @@ int main(int argc, char *argv[]) {
   The `filelist[]` array will contain the names of the files
 in the order they are specified on the command line.
 
-*/
+```C
 _("after: Global vars")
 char **filelist = NULL;
+```
 
-/* (:)
   We simply set `filelist` to first argument in the `argv` array
 past all the options.
 
@@ -139,15 +132,15 @@ past all the options.
 ```
 The first element of `filelist` (i.e. `filelist[0]`) will be "src1"
 
-*/
+```C
 _("after: CLI action to set the list of files to be parsed.")
 vrgarg("filename ...\tThe files to be processed") {
   filelist = &argv[vrgargn-1];
   break;
 }
 
+```
 
-/* (:)
   ### Code chunk buffers
 
   The objective of parsing the input files is to identify the chunk of codes
@@ -160,9 +153,9 @@ the "after" chunks.
   The main chunk of code is what is left from the input files after having
 removed all the text parts and all the after/before code chunks and is stored
 in a buffer hold in the `code_chunk` variable.
-*/
 
 
+```C
 _("after:Global vars")
 val_t code_chunk = valnil;  // The code chunk
 
@@ -172,12 +165,12 @@ if (valisnil(code_chunk)) throw(EX_OUTOFMEM,"");
 
 _("after:Cleanup")
 code_chunk = buffree(code_chunk);
+```
 
-/* (:)
   The after/before chunks are stored in a map hold
 by the variable `chunks`.
-*/
 
+```C
 _("after:Global vars")
 val_t chunks = valnil;      // The after/before chunks
 
@@ -188,8 +181,8 @@ if (valisnil(chunks)) throw(EX_OUTOFMEM,"");
 _("after:Cleanup")
 chunks = vecfree(chunks);
 bufclearstore(); // free up the stored keys.
+```
 
-/* (:)
   To access the buffers, the function `getbuffer()` retrieves 
 the buffers related to a waypoint (creating it if it does not already exists).
 
@@ -197,8 +190,8 @@ the buffers related to a waypoint (creating it if it does not already exists).
 **code** (the main chunk). In other words, `getbuffer('A',"Initialize engine")`
 will return the buffer containing the text that goes after the `Initializae engine`
 waypoint.
-*/
 
+```C
 _("before: Global vars")
 val_t getbuffer(char prefix, char *waypoint);
 
@@ -214,7 +207,7 @@ val_t getbuffer(char prefix, char *waypoint)
   _dbgblk {
     char *s = waypoint;
     while (*s && *s != '\x1E') s++;
-    dbgtrc("GET: [%c][%.*s]",prefix,(int)(s-waypoint),waypoint);
+   _dbgtrc("GET: [%c][%.*s]",prefix,(int)(s-waypoint),waypoint);
   }
 
   name = to_chunkname(prefix, waypoint);
@@ -239,8 +232,7 @@ val_t getbuffer(char prefix, char *waypoint)
 
   return buffer;
 }
-
-/*_(:)
+```
   ### Chunk names
 
   We need to provide some flexibility in the way we spell 
@@ -255,14 +247,14 @@ same waypoint:
   '(after:Initialize  the engines)'
   '(after:Initialize The Engines)'
   '(before: Initialize the ENGINES.)'
-
 ```
   This way, the programmer is not forced to remember *exactly*
 how a certain waypoint had been defined. Of course one should avoid
 using different strings for the same waypoint, but subtle variations
 (like the space at the beginning) shoud be accomadated for by the tool.
-*/
 
+
+```C
 _("after:Global vars")
 char *to_chunkname(char prefix, char *s);
 
@@ -301,14 +293,14 @@ char *to_chunkname(char prefix, char *s)
 
   return name;
 }
+```
 
-/* (:)
   ### Setting the output file.
 
   By default, `tng` will send the output file to stdout. You can 
   use the CLI option `-o` to specify which file should be created.
-*/
 
+```C
 _("after: Global vars")
 char *out_filename = NULL;
 FILE *out_file;
@@ -331,14 +323,15 @@ if (out_filename) fclose(out_file);
 _("after: Global vars")
 val_t cur_buffer = valnil;
 
-/* (:)
+```
+
   ### Reading the files
 
   Since `filelist` is the end portion of the `argv` array, it is guaranteed
 by the C standard (5.1.2.2.1) that the last element of the array is a
 pointer to `NULL`.
-*/
 
+```C
 _("after:Parse input files")
 { char **fname = filelist;
   while (*fname) {
@@ -347,13 +340,13 @@ _("after:Parse input files")
   }
 }
 
-/* (:)
+```
   The files will be read one line at the time. The current line 
 stored in the `linebuf` buffer.
 
   The variable `linenum` carries the current line number.
-*/
 
+```C
 _("after: Global vars")
 val_t linebuf = valnil;
 int linenum = 0;
@@ -370,12 +363,13 @@ buflen(linebuf,0);
 bufloadln(linebuf, source_file);
 linenum += 1;
 
-/* (:)
+```
+
   The function `parsefile()` will do all the work of reading
 the input files, extracting the chunk of codes and putting them
 in the appropriate buffers.
-*/
 
+```C
 _("after:Functions")
 int parsefile(char *file_name)
 {
@@ -398,12 +392,11 @@ int parsefile(char *file_name)
   fclose(source_file);
   return 0;
 }
+```
 
-
-/* (:)
   ### Recognizing Tags
-*/
 
+```C
 _("before: Global vars")
 #define TAG_NONE     0x00
 #define TAG_TEXT     0x01
@@ -428,7 +421,7 @@ char *bufstr;
 _("after:Identify tags. Sets tag, tag_arg and tag_indent")
 {
   bufstr = buf(linebuf,0);
-  dbgtrc("ln: [%d] %d '%s'",linenum, code, bufstr);
+ _dbgtrc("ln: [%d] %d '%s'",linenum, code, bufstr);
   _dbgtrc("ln: '%d'",linenum);
 
   tag = TAG_NONE;
@@ -436,7 +429,7 @@ _("after:Identify tags. Sets tag, tag_arg and tag_indent")
   tag_indent = 0;
 
   if (voidstr[0] != '\0') { // We are in the void
-    dbgtrc("VOID: %d",linenum);
+   _dbgtrc("VOID: %d",linenum);
     _(":Check if we are at the end of void")
   }
   else {
@@ -479,7 +472,7 @@ _("after:Look for a tag")
 
 _("after: Found a possible tag")
 {
-  dbgtrc("( found! '%s' code:%d line: %d",s+3,code,linenum);
+ _dbgtrc("( found! '%s' code:%d line: %d",s+3,code,linenum);
   tag_indent = s-bufstr;
   while (tag_indent > 0 && !isspace(bufstr[tag_indent-1]))
     tag_indent -= 1;
@@ -506,10 +499,10 @@ _("after: Found a possible tag")
 _("after: Look for three backticks")
 {
   s = bufstr;
-  dbgtrc("ticks? '%s'",s);
+ _dbgtrc("ticks? '%s'",s);
   while (isspace(*s)) s++;
   if (s[0]=='`' && s[1]=='`' && s[2]=='`') {
-    dbgtrc("3 ticks! '%s' code:%d line: %d",s+3,code,linenum);
+   _dbgtrc("3 ticks! '%s' code:%d line: %d",s+3,code,linenum);
 
     tag = TAG_EMPTY;
     if (!code && s[3] != '\0' && !isspace(s[3])) {
@@ -540,8 +533,8 @@ _("after: Zero terminate the argument")
   }
   _dbgtrc("c: %d E: '%s'",tag,tag_arg);
 }
+```
 
-/* (:)
   ### Handling tags
 
   There are two main variables that dictate the state of the handling:
@@ -551,8 +544,7 @@ _("after: Zero terminate the argument")
 
   - `voidstr` : If we are "in a void", this string will be non empty.
 
-*/
-
+```C
 _("after:Parsing Variables")
 int code = 0;
 
@@ -616,13 +608,6 @@ _("after: Emit line number")
 if (!nolinenums) 
   bufprintf(cur_buffer, "\x1F#line %d \"%s\"\n",linenum+1,file_name);
 
-_(:)
-
-/*
-
-
-*/
-
 _("after:Reassemble chunks into output file")
 // Start from the main code chunk
 reassemble('C',"",0);
@@ -632,7 +617,8 @@ _("before: Global Vars")
 int count_out_recur = 0;
 
 _("after:functions")
-void reassemble(char prefix, char *name, int indent) {
+void reassemble(char prefix, char *name, int indent)
+{
 
   val_t c;
   char *b;
@@ -674,35 +660,18 @@ void reassemble(char prefix, char *name, int indent) {
   }
 }
 
-_("before: Cleanup");
-/* DEBUG CODE */
-_dbgblk {
-  _dbgtrc("Code CHUNK: ");
-  _dbgtrc("%s",valtostring(code_chunk));
-  _dbgtrc("Chunk list: %d",veccount(chunks));
-  val_t k;
-  val_t c = vecfirst(chunks,&k);
-  while (!valisnil(k)) {
-    dbgtrc("chunk: '%s'",valtostring(k));
-    _dbgchk(valisbuf(c));
-    dbgtrc("%s",valtostring(c));
-    c = vecnext(chunks, &k);
-  }
-  _dbgtrc("ll");
-}
+```
 
-_(:)
+ ## Data structure
 
+ The chunks will be held in a map
 
+ We'll keep a list of chunks :
+   - `C~xxx` one of each file (code)
+   - `B~xxx` The text to be inserted before waypoint xxx
+   - `A~xxx` The text to be inserted after waypoint xxx
 
-
-// ## Data structure
-/* The chunks will be held in a map
-** We'll keep a list of chunks :
-**   - `C~xxx` one of each file (code)
-**   - `B~xxx` The text to be inserted before waypoint xxx
-**   - `A~xxx` The text to be inserted after waypoint xxx
-*/
+```C
 _("after:includes")
 #include "val.h"
 
@@ -736,17 +705,14 @@ vrgcli("version 1.0 (c) by Remo Dentato") {
   }
 }
 
-_(:)
+```
 
-/*
 ## Includes
 Let's park here all the includes needed.
-*/
+
+```C
 _("before: includes")
 #include <stdio.h>
-
-_(:)
-
 
 _("before: Functions")
 static inline int isquote(int c)
@@ -754,13 +720,13 @@ static inline int isquote(int c)
   return (c == '\'' || c == '"' || c == '`');
 }
 
-_(:)
+```
 
-/* ## Exceptions
-**
-**   Set up the expetions used
-*/
+ ## Exceptions
 
+   Set up the expetions used
+
+```C
 _("after: includes")
 #define exception_info char *msg;
 #include "try.h"
@@ -801,10 +767,12 @@ catch() {
   err("Unexpected error");
 }
 
-_(:)
-// ## Debuging & Errors
-//  Set the default level of debugging information
+```
 
+ ## Debuging & Errors
+  Set the default level of debugging information
+
+```C
 _("before:includes")
 #if !defined(DEBUG) && !defined(NDEBUG)
 #define DEBUG DEBUG_TEST
@@ -814,4 +782,5 @@ _("after:includes")
 
 _("before:global vars")
 #define err(...) (fprintf(stderr,"ERROR: " __VA_ARGS__),fputc('\n',stderr))
+```
 
