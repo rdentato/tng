@@ -1,6 +1,23 @@
  # *tng* - A simple literate programming tangling tool
 
  ## Table of Contents
+- [*tng* - A simple literate programming tangling tool](#tng---a-simple-literate-programming-tangling-tool)
+  - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Syntax](#syntax)
+  - [main()](#main)
+  - [Parsing the files](#parsing-the-files)
+    - [Getting the input files names](#getting-the-input-files-names)
+    - [Code chunk buffers](#code-chunk-buffers)
+    - [Chunk names](#chunk-names)
+    - [Setting the output file.](#setting-the-output-file)
+    - [Reading the files](#reading-the-files)
+    - [Recognizing Tags](#recognizing-tags)
+    - [Handling tags](#handling-tags)
+  - [Data structure](#data-structure)
+  - [Includes](#includes)
+  - [Exceptions](#exceptions)
+  - [Debuging \& Errors](#debuging--errors)
 
  ## Introduction
 
