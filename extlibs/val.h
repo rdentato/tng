@@ -154,6 +154,7 @@ static inline val_t val_fromval(val_t v)             {return v;}
 #define val(x) _Generic((x), val_t: x, default: val_(x))
 
 #define valeq(x,y)      valeq_(val(x),val(y))
+
 static inline int valeq_(val_t x, val_t y)
 {
   if (x.v == y.v) return 1;

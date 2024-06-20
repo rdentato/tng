@@ -89,8 +89,8 @@ tng2htm.c: tng tng2htm.md
 
 ```makefile
 clean:
-	rm -rf *.o tng.bak tng.c tng2htm.c tng tng2htm boot/*.o 
+	rm -rf *.o tng.exe *.obj tng.c tng2htm.c tng tng2htm boot/*.o boot/*.obj
 
 cleanall:
-	rm -rf *.o tng.bak tng.c tng2htm.c tng tng2htm boot/*.o $(EXTLIBS)/val.o makefile
+	rm -rf *.o tng.exe *.obj tng.c tng2htm.c tng tng2htm boot/*.o boot/*.obj $(EXTLIBS)/val.o  $(EXTLIBS)/val.obj makefile
 ```

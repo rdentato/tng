@@ -24,6 +24,7 @@
   - [Reassembling chunks](#reassembling-chunks)
     - [Handle infinite loop](#handle-infinite-loop)
   - [Data structure](#data-structure)
+  - [Commmand line interface](#commmand-line-interface)
   - [Includes](#includes)
   - [Exceptions](#exceptions)
   - [Debuging \& Errors](#debuging--errors)
@@ -187,7 +188,7 @@ in a buffer hold in the `code_chunk` variable.
 
 ```C
 _("after:Global vars")
-val_t code_chunk = valnil;  // The code chunk
+val_t code_chunk;  // The code chunk
 
 _("after:Initialize the variables and data structures.")
 code_chunk = bufnew();
@@ -201,7 +202,7 @@ code_chunk = buffree(code_chunk);
 
 ```C
 _("after:Global vars")
-val_t chunks = valnil;      // The after/before chunks
+val_t chunks;      // The after/before chunks
 
 _("after:Initialize the variables and data structures.")
 chunks = vecnew();
@@ -338,7 +339,7 @@ if (out_filename) fclose(out_file);
 
 
 _("after: Global vars")
-val_t cur_buffer = valnil;
+val_t cur_buffer;
 
 ```
 
@@ -369,7 +370,7 @@ stored in the `linebuf` buffer.
 
 ```C
 _("after: Global vars")
-val_t linebuf = valnil;
+val_t linebuf;
 int linenum = 0;
 
 _("after:Initialize the variables and data structures.")
@@ -740,10 +741,12 @@ count_out_recur--;
 ```C
 _("after:includes")
 #include "val.h"
+```
 
-_(:)
-// ## Commmand line interface
-// Let's use the `vrg.h` facilities for the CLI
+## Commmand line interface
+  Let's use the `vrg.h` facilities for the CLI
+  
+```C
 _("after: includes")
 #define VRGCLI
 #include "vrg.h"

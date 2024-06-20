@@ -13,7 +13,13 @@
 #define RETURN_IF valreturnif
 #endif
 
+#ifdef _MSC_VER
+val_t buf_stores[BUF_STORES_NUM] = {0xFFF80FFFFFFFFFE0, 0xFFF80FFFFFFFFFE0, 0xFFF80FFFFFFFFFE0, 0xFFF80FFFFFFFFFE0};
+#else 
 val_t buf_stores[BUF_STORES_NUM] = {valnil, valnil, valnil, valnil};
+#endif
+
+//val_t buf_stores[BUF_STORES_NUM] = {valnil, valnil, valnil, valnil};
 uint8_t buf_stores_cnt[BUF_STORES_NUM] = {0,0,0,0} ;
 
 val_t bufstore_2(int sto, char *s)
@@ -94,7 +100,7 @@ static int buf_makeroom(buf_t b, uint32_t n)
 
 val_t bufnew_(uint32_t sze) {
   errno = 0;
-  buf_t b = aligned_alloc(4,sizeof(struct buf_s));
+  buf_t b = malloc(sizeof(struct buf_s));
   if (b) {
     b->pos = 0;
     b->end = 0;
@@ -732,7 +738,7 @@ static int volatile ZERO = 0;
 
 val_t vecnew() {
   errno = 0;
-  vec_t v = aligned_alloc(4,sizeof(struct vec_s));
+  vec_t v = malloc(sizeof(struct vec_s));
   
   RETURN_IF(v == NULL, valnil, ENOMEM);
   

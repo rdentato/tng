@@ -1,27 +1,47 @@
+#line 9 "makefile.md"
 #  SPDX-FileCopyrightText: © 2024 Remo Dentato <rdentato@gmail.com>
 #  SPDX-License-Identifier: MIT
 
-DEBUG=-DDEBUG=DEBUG_TEST
-DEBUG=-DNDEBUG
-EXTLIBS=../extlibs
-CFLAGS=-O2 -Wall $(DEBUG) -I$(EXTLIBS)
+#line 25 "makefile.md"
+  DEBUG=-DDEBUG=DEBUG_TEST
+#line 44 "makefile.md"
+  CFLAGS=-O2 -Wall $(DEBUG) -I$(EXTLIBS)
+#line 38 "makefile.md"
+  #DEBUG=-DNDEBUG
+#line 49 "makefile.md"
+  #CFLAGS=-O3 -Wall -DNDEBUG -I$(EXTLIBS)
+#line 13 "makefile.md"
 
+#line 62 "makefile.md"
 all:tng tng2htm
+#line 15 "makefile.md"
 
+#line 17 "makefile.md"
+
+#line 24 "makefile.md"
+#line 37 "makefile.md"
+#line 43 "makefile.md"
+#line 48 "makefile.md"
+#line 55 "makefile.md"
+EXTLIBS=../extlibs
+#line 61 "makefile.md"
+#line 68 "makefile.md"
 tng: tng.o $(EXTLIBS)/val.o
 	$(CC) $(CFLAGS) -o tng tng.o $(EXTLIBS)/val.o
 
 tng.c: tng.md
 	./tng -o tng.c tng.md
 
+#line 78 "makefile.md"
 tng2htm: tng2htm.o $(EXTLIBS)/val.o
 	$(CC) $(CFLAGS) -o tng2htm tng2htm.o $(EXTLIBS)/val.o
 
 tng2htm.c: tng tng2htm.md
 	./tng -o tng2htm.c tng2htm.md
 
+#line 91 "makefile.md"
 clean:
-	rm -rf *.o tng.bak tng.c tng2htm.c tng tng2htm boot/*.o 
+	rm -rf *.o tng.exe *.obj tng.c tng2htm.c tng tng2htm boot/*.o boot/*.obj
 
 cleanall:
-	rm -rf *.o tng.bak tng.c tng2htm.c tng tng2htm boot/*.o $(EXTLIBS)/val.o
+	rm -rf *.o tng.exe *.obj tng.c tng2htm.c tng tng2htm boot/*.o boot/*.obj $(EXTLIBS)/val.o  $(EXTLIBS)/val.obj makefile

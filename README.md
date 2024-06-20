@@ -22,6 +22,9 @@ and execute the `boot.sh` script:
   This will create the source `tng.c`, the `makefile` and will compile
 the latest version of `tng`.
 
+  You can also create a native Windows version installing the MSVC compiler `cl`
+and running the script `boot.bat` in the `src` directory.
+
 ## Command line options:
 
 ```
