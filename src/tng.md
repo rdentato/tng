@@ -1,19 +1,28 @@
  # *tng* - A simple literate programming tangling tool
 
+```C
+  // SPDX-FileCopyrightText: © 2024 Remo Dentato <rdentato@gmail.com>
+  // SPDX-License-Identifier: MIT
+```
+
  ## Table of Contents
 - [*tng* - A simple literate programming tangling tool](#tng---a-simple-literate-programming-tangling-tool)
   - [Table of Contents](#table-of-contents)
   - [Introduction](#introduction)
   - [Syntax](#syntax)
-  - [main()](#main)
+  - [The `main()` function](#the-main-function)
   - [Parsing the files](#parsing-the-files)
-    - [Getting the input files names](#getting-the-input-files-names)
-    - [Code chunk buffers](#code-chunk-buffers)
+    - [Getting the input files names from the command line](#getting-the-input-files-names-from-the-command-line)
+    - [Managing code chunk buffers](#managing-code-chunk-buffers)
     - [Chunk names](#chunk-names)
     - [Setting the output file.](#setting-the-output-file)
-    - [Reading the files](#reading-the-files)
+    - [Reading the files ...](#reading-the-files-)
+    - [... one line at the time ...](#-one-line-at-the-time-)
+    - [... and parsing it.](#-and-parsing-it)
     - [Recognizing Tags](#recognizing-tags)
     - [Handling tags](#handling-tags)
+  - [Reassembling chunks](#reassembling-chunks)
+    - [Handle infinite loop](#handle-infinite-loop)
   - [Data structure](#data-structure)
   - [Includes](#includes)
   - [Exceptions](#exceptions)
@@ -21,8 +30,10 @@
 
  ## Introduction
 
-  This is the *tangle* tool for a very simple literate programming
-system called `tng`. I will assume you already know about literate
+  This is a tool for a very simple literate programming
+system called `tng`.
+
+  I assume you already know about literate
 programming and will just recall some basic concepts. See the
 [Wikipedia](https://en.wikipedia.org/wiki/Literate_programming)
 article for more information on Literate Programming.
@@ -44,12 +55,13 @@ compiler only when needed (and in a transparent way).
 
   To me, the key points are:
 
-     - Source code must be readable in their native, unwaved form.
-       Waving it (i.e. creating a nice HTML or PDF version) is a plus
-       but shouldn't be mandatory.
-     - tangling helps keeping close, in the file, elements that are
-       logically related so that their interaction can be explained
-       (and understood) more easily.
+  - Source code must be readable in their native, unwaved form.
+    Waving it (i.e. creating a nice HTML or PDF version) is a plus
+    but shouldn't be mandatory.
+
+  - tangling helps keeping close, in the file, elements that are
+    logically related so that their interaction can be explained
+    (and understood) more easily.
 
  ## Syntax
   
@@ -67,13 +79,13 @@ compiler only when needed (and in a transparent way).
    The tags are in the form: `(<tag>:<arg>)` and there
  are five of them:
 
-    - `(code:[filename])`    What follows will be included in the generated file.
-    - `(text:[filename])`
-    - `(after:<waypoint>)`   
-    - `(before:<waypoint>)`
-    - `(:<waypoint>)`
-    - '(:)' an empty waypoint marks the end of a code section
-    - '(void:xxx)'  stops interpreation until another '(void:xxx)' is found.
+  - `(code:[filename])`    What follows will be included in the generated file.
+  - `(text:[filename])`
+  - `(after:<waypoint>)`   
+  - `(before:<waypoint>)`
+  - `(:<waypoint>)`
+  - `(:)` an empty waypoint marks the end of a code section
+  - `(void:xxx)`  stops interpreation until another '(void:xxx)' is found.
 
    tags can appear anywhere in a line and the entire line will be
  ignored. Please note that this is means you can't write something like:
@@ -87,20 +99,15 @@ compiler only when needed (and in a transparent way).
  Here I've used mostly MarkDown syntax since many programmers are already
  familiar with that syntax. 
 
-  ## main()  
+## The `main()` function
   The program logic is almost trivial. The files are parsed to collect the
 chunk of codes and then the output file is reassembled.
 
-  To simmplify error handling, we use the exception library `try.h` in
-  the `extlibs` directory.
 
 ```C 
-#define _(...)
-
 _(":Includes")
-
-_(":Global vars")
-_(":Functions")
+_(":Global vars")  
+_(":Functions") 
 
 int main(int argc, char *argv[]) {
 
@@ -111,18 +118,23 @@ int main(int argc, char *argv[]) {
     _(":Parse input files")
     _(":Reassemble chunks into output file")
   }
-  _(":Handle errors")
+  _(":Catch errors")
+  catch() {
+    err("Unexpected error");
+  }
 
   _(":Cleanup")
 
+  exit(0);
 }
 ```
 
-  ## Parsing the files
+## Parsing the files
 
-  ### Getting the input files names
+  By default, `tng` reads data from `stdin` to ease it's usage in scripts, 
+but the names of files to be processed can also be passed on the command line.
 
-  The files to be parsed are passed on the command line.
+### Getting the input files names from the command line
 
   The `filelist[]` array will contain the names of the files
 in the order they are specified on the command line.
@@ -133,7 +145,7 @@ char **filelist = NULL;
 ```
 
   We simply set `filelist` to first argument in the `argv` array
-past all the options.
+after the options.
 
 ```
  argv──╮                 ╭─ filelist  ╭─ NULL
@@ -147,18 +159,19 @@ past all the options.
 ``` bash
   ./tng -n -o out src1 src2
 ```
-The first element of `filelist` (i.e. `filelist[0]`) will be "src1"
+The first element of `filelist` (i.e. `filelist[0]`) will be "src1".
 
 ```C
 _("after: CLI action to set the list of files to be parsed.")
-vrgarg("filename ...\tThe files to be processed") {
+vrgarg("[filename ...]\tThe files to be processed. (defaults to stdin)") {
   filelist = &argv[vrgargn-1];
   break;
 }
-
 ```
 
-  ### Code chunk buffers
+If `filelist` is `NULL`, then the input file is `stdin`.
+
+### Managing code chunk buffers
 
   The objective of parsing the input files is to identify the chunk of codes
 that must be placed after/before the waypoints.
@@ -184,8 +197,7 @@ _("after:Cleanup")
 code_chunk = buffree(code_chunk);
 ```
 
-  The after/before chunks are stored in a map hold
-by the variable `chunks`.
+  The after/before chunks are stored in a map hold by the variable `chunks`.
 
 ```C
 _("after:Global vars")
@@ -209,7 +221,7 @@ will return the buffer containing the text that goes after the `Initializae engi
 waypoint.
 
 ```C
-_("before: Global vars")
+_("before: Global vars")  
 val_t getbuffer(char prefix, char *waypoint);
 
 _("after:Functions")
@@ -220,12 +232,6 @@ val_t getbuffer(char prefix, char *waypoint)
   char *name;
 
   if (prefix == 'C') return code_chunk;
-
-  _dbgblk {
-    char *s = waypoint;
-    while (*s && *s != '\x1E') s++;
-   _dbgtrc("GET: [%c][%.*s]",prefix,(int)(s-waypoint),waypoint);
-  }
 
   name = to_chunkname(prefix, waypoint);
 
@@ -241,11 +247,6 @@ val_t getbuffer(char prefix, char *waypoint)
     if (valisnil(cname)) throw(EX_OUTOFMEM,"");
     vecmap(chunks,cname,buffer);
   }
-
-  _dbgtrc("GOT: [%s]",valtostring(cname));
-
-  _dbgchk(!valisnil(cname));
-  _dbgchk(valisstored(cname));
 
   return buffer;
 }
@@ -294,8 +295,7 @@ char *to_chunkname(char prefix, char *s)
       name[len++] = c;
     }
     else if ('A' <= c && c <= 'Z') {
-      c += 32; 
-      name[len++] = c;
+      name[len++] = c + 32; // tolower
     }
     else if ('a' <= c && c <= 'z') {
       name[len++] = c;
@@ -342,7 +342,7 @@ val_t cur_buffer = valnil;
 
 ```
 
-  ### Reading the files
+  ### Reading the files ...
 
   Since `filelist` is the end portion of the `argv` array, it is guaranteed
 by the C standard (5.1.2.2.1) that the last element of the array is a
@@ -350,7 +350,10 @@ pointer to `NULL`.
 
 ```C
 _("after:Parse input files")
-{ char **fname = filelist;
+if (filelist == NULL) {
+  parsefile(NULL);
+} else {
+  char **fname = filelist;
   while (*fname) {
     parsefile(*fname);
     fname++;
@@ -358,6 +361,7 @@ _("after:Parse input files")
 }
 
 ```
+  ### ... one line at the time ...
   The files will be read one line at the time. The current line 
 stored in the `linebuf` buffer.
 
@@ -382,6 +386,7 @@ linenum += 1;
 
 ```
 
+### ... and parsing it.
   The function `parsefile()` will do all the work of reading
 the input files, extracting the chunk of codes and putting them
 in the appropriate buffers.
@@ -390,14 +395,14 @@ in the appropriate buffers.
 _("after:Functions")
 int parsefile(char *file_name)
 {
-  _(":Parsing variables")
+  _(":Local variable for parsing")
 
-  FILE *source_file; 
-  source_file = fopen(file_name,"rb");
-  if (!source_file) throw(EX_FILENOTFOUND, file_name);
+  FILE *source_file = stdin;
+  if (file_name != NULL)  {
+    source_file = fopen(file_name,"rb");
+    if (!source_file) throw(EX_FILENOTFOUND, file_name);
+  }
   
-  _dbgtrc("Parsing: %s", file_name);
-
   cur_buffer = code_chunk;
 
   while (!feof(source_file)) {
@@ -406,7 +411,7 @@ int parsefile(char *file_name)
     _(":Handle tags")
   }
 
-  fclose(source_file);
+  if (file_name != NULL) fclose(source_file);
   return 0;
 }
 ```
@@ -427,7 +432,7 @@ _("before: Global vars")
 #define TAG_EXVOID   0x09
 #define TAG_TICKS    0x0A
 
-_("after: parsing variables")
+_("after: Local variable for parsing")
 int   tag = TAG_NONE;
 char *tag_arg = NULL;
 int   tag_indent = 0;
@@ -438,15 +443,12 @@ char *bufstr;
 _("after:Identify tags. Sets tag, tag_arg and tag_indent")
 {
   bufstr = buf(linebuf,0);
- _dbgtrc("ln: [%d] %d '%s'",linenum, code, bufstr);
-  _dbgtrc("ln: '%d'",linenum);
 
   tag = TAG_NONE;
   tag_arg = NULL;
   tag_indent = 0;
 
   if (voidstr[0] != '\0') { // We are in the void
-   _dbgtrc("VOID: %d",linenum);
     _(":Check if we are at the end of void")
   }
   else {
@@ -462,7 +464,6 @@ _("after:Check if we are at the end of void")
   if (s && s > bufstr && isquote(s[-1])) s=NULL;
   if (s) {
     s += 6;
-    _dbgtrc("VOID]: '%s' (%s) len:%d",voidstr,s,(int)strlen(voidstr));
     if (strncmp(voidstr,s,strlen(voidstr)) == 0) {
        voidstr[0] = '\0';
        tag = TAG_EXVOID;
@@ -487,10 +488,17 @@ _("after:Look for a tag")
   }
 }
 
+_("after:Global vars")
+int global_indent = 0;
+
+_("after:CLI for indentation")
+vrgarg("-i, --indent\tKeep indentation") {
+  global_indent = 1;
+}
+
 _("after: Found a possible tag")
 {
- _dbgtrc("( found! '%s' code:%d line: %d",s+3,code,linenum);
-  tag_indent = s-bufstr;
+  tag_indent = (s-bufstr) * global_indent;
   while (tag_indent > 0 && !isspace(bufstr[tag_indent-1]))
     tag_indent -= 1;
   
@@ -516,11 +524,9 @@ _("after: Found a possible tag")
 _("after: Look for three backticks")
 {
   s = bufstr;
- _dbgtrc("ticks? '%s'",s);
   while (isspace(*s)) s++;
-  if (s[0]=='`' && s[1]=='`' && s[2]=='`') {
-   _dbgtrc("3 ticks! '%s' code:%d line: %d",s+3,code,linenum);
 
+  if (s[0]=='`' && s[1]=='`' && s[2]=='`') {
     tag = TAG_EMPTY;
     if (!code && s[3] != '\0' && !isspace(s[3])) {
       tag_indent = s-bufstr;
@@ -548,7 +554,6 @@ _("after: Zero terminate the argument")
   else { // We didn't find the ')'
     throw(EX_SYNTAXERR,"Unterminated tag");
   }
-  _dbgtrc("c: %d E: '%s'",tag,tag_arg);
 }
 ```
 
@@ -562,53 +567,47 @@ _("after: Zero terminate the argument")
   - `voidstr` : If we are "in a void", this string will be non empty.
 
 ```C
-_("after:Parsing Variables")
+_("after:Local variable for parsing")
 int code = 0;
 
 _("after:Handle tags")
 switch (tag) {
 
-  case TAG_EMPTY:    code = 0; _dbgtrc("EMPTY (%s)",bufstr); break;
-  case TAG_TEXT:     code = 0; _dbgtrc("TEXT"); break;
+  case TAG_EMPTY:    code = 0; break;
+  case TAG_TEXT:     code = 0; break;
 
   case TAG_NONE:     if (code) { 
                        bufputs(cur_buffer,bufstr);
                        bufputs(cur_buffer,"\n");
-                       _dbgtrc("CODE: [%s] (buf: %p)",bufstr,(void*)buf(cur_buffer,0));
                      }
                      break;
 
   case TAG_WAYPOINT: if (code) { 
+                        // Insert a special code in the buffer (0x1B) to signal this is a waypoint
                         bufprintf(cur_buffer, "\x1B%08d %s\x1E\n",tag_indent, tag_arg);
                         _(": Emit line number")
-                        _dbgtrc("WAYPOINT: %s",tag_arg ); 
                      }
                      break;
 
   case TAG_BEFORE:   cur_buffer = getbuffer('B',tag_arg);
                      _(": Emit line number")
                      code = 1;
-                     _dbgtrc("BEFORE '%s'",tag_arg); 
                      break;
 
   case TAG_AFTER:    cur_buffer = getbuffer('A',tag_arg); 
                      _(": Emit line number")
                      code = 1; 
-                     _dbgtrc("AFTER '%s'",tag_arg); 
                      break;
 
   case TAG_CODE:     cur_buffer = code_chunk;
                      _(": Emit line number")
                      code = 1;
-                     _dbgtrc("CODE '%s'",tag_arg);
                      break;
 
   case TAG_VOID:     if (tag_arg && tag_arg[0]) {
                        strncpy(voidstr,tag_arg,31);
                        voidstr[31] ='\0';
-                       _(": Emit line number")
                      }
-                     _dbgtrc("VOID[: '%s'",voidstr);
                      break;
 
   case TAG_INVOID:   bufputs(cur_buffer,bufstr);
@@ -617,21 +616,24 @@ switch (tag) {
 
   case TAG_EXVOID:   
                      _(": Emit line number")
-                     _dbgtrc("X] %d", linenum);
                      break;
 }
 
 _("after: Emit line number")
-if (!nolinenums) 
-  bufprintf(cur_buffer, "\x1F#line %d \"%s\"\n",linenum+1,file_name);
+if (!nolinenums) {
+  if (file_name != NULL)
+    bufprintf(cur_buffer, "\x1F#line %d \"%s\"\n",linenum+1,file_name);
+  else
+    bufprintf(cur_buffer, "\x1F#line %d\n",linenum+1);
+}
+```
 
+## Reassembling chunks
+
+```C
 _("after:Reassemble chunks into output file")
 // Start from the main code chunk
 reassemble('C',"",0);
-
-_("before: Global Vars")
-// Count nesting level to detect infinite loops
-int count_out_recur = 0;
 
 _("after:functions")
 void reassemble(char prefix, char *name, int indent)
@@ -641,7 +643,7 @@ void reassemble(char prefix, char *name, int indent)
   char *b;
   c = getbuffer(prefix,name);
   if (!valisnil(c)) {
-    if (count_out_recur++ > 10) throw(EX_INFINITELOOP);
+    _(":Increment and check loop counter")
     b = valtostring(c);
     int n = 1;
     int new_indent;
@@ -660,8 +662,6 @@ void reassemble(char prefix, char *name, int indent)
         new_name = b;
         while (*b && *b != '\n') b++;
   
-        _dbgtrc("name: '%.*s'",(int)(b-new_name-1),new_name);
-  
         reassemble('B',new_name,new_indent);
         reassemble('A',new_name,new_indent);
 
@@ -673,10 +673,59 @@ void reassemble(char prefix, char *name, int indent)
       n = (*b == '\n');
       b++;
     }
-    count_out_recur--;
+    _(":Decrement loop counter")
   }
 }
 
+```
+### Handle infinite loop
+  It might happen that one or more chunks refer recursively to each other.
+For example this code:
+
+``` 
+    Hello!
+    (:target A)
+    
+(after:target B)
+    How are
+    (:target A)
+
+(after:target A)
+    you?
+    (:target B)
+```
+
+would cause an infinite loop!
+
+To detect this, a counter is used:
+
+```C
+_("before: Global Vars")
+int count_out_recur = 0;
+```
+ It will be incremented when starting an expansion and if the number of 
+loop is higher than 10 (an arbitrary limit), the expansion will be stopped.
+
+```C
+_("after:Increment and check loop counter")
+if (count_out_recur++ > 10) throw(EX_INFINITELOOP,name,prefix);
+
+_("after:Catch Infinite loop")
+catch(EX_INFINITELOOP) {
+  char *tag="";
+  if (exception.aux == 'A') tag="after";
+  else if (exception.aux == 'B') tag="before";
+  char *e=exception.msg;
+  while (*e && *e != '\n') e++;
+  while (e>exception.msg && isspace(e[-1])) e--;
+  err("Infinite recursion while expanding: (%s:%.*s)",tag,(int)(e-exception.msg),exception.msg);
+}
+```
+  and decremented when the expansion has been completed:
+
+```C
+_("after:Decrement loop counter")
+count_out_recur--;
 ```
 
  ## Data structure
@@ -701,6 +750,7 @@ _("after: includes")
 
 _("after: Global vars")
 int nolinenums = 0;
+int buildndx = 0;
 
 _("after: Command line interface")
 vrgcli("version 1.0 (c) by Remo Dentato") {
@@ -711,6 +761,8 @@ vrgcli("version 1.0 (c) by Remo Dentato") {
   _(":CLI action to set the output file name")
 
   _(":CLI action to set the list of files to be parsed.")
+  
+  _(":CLI for indentation")
 
   vrgarg("-h, --help\tHelp") {
     vrghelp();
@@ -740,17 +792,22 @@ static inline int isquote(int c)
 ```
 
  ## Exceptions
+  To simmplify error handling, we use the exception library `try.h` in
+the `extlibs` directory.
 
-   Set up the expetions used
 
 ```C
 _("after: includes")
-#define exception_info char *msg;
+#define exception_info char *msg; int aux;
 #include "try.h"
 
 _("after:Global vars")
 try_t catch; // initialize the try/catch macros
+```
 
+  Set up the expetions used:
+
+```C
 _("before: Global vars")
 // These are the defined exceptions
 #define EX_FILENOTFOUND 1
@@ -761,7 +818,7 @@ _("before: Global vars")
 #define EX_DUPLICATEBUF 6
 #define EX_INFINITELOOP 7
 
-_("after:Handle errors")
+_("after:Catch errors")
 catch(EX_FILENOTFOUND) {
   err("File not found: '%s'",exception.msg);
 }
@@ -777,12 +834,7 @@ catch(EX_SYNTAXERR) {
 catch(EX_DUPLICATEBUF) {
   err("Duplicate file buffer %s",exception.msg);
 }
-catch(EX_INFINITELOOP) {
-  err("Recursive definition detected");
-}
-catch() {
-  err("Unexpected error");
-}
+_(":Catch Infinite loop")
 
 ```
 
@@ -795,9 +847,11 @@ _("before:includes")
 #define DEBUG DEBUG_TEST
 #endif
 _("after:includes")
+#ifdef DEBUG
 #include "dbg.h"
+#endif 
 
 _("before:global vars")
-#define err(...) (fprintf(stderr,"ERROR: " __VA_ARGS__),fputc('\n',stderr))
+#define err(...) (fflush(stdout),fprintf(stderr,"ERROR: " __VA_ARGS__),fputc('\n',stderr))
 ```
 

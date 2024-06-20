@@ -1,0 +1,24 @@
+01 this goes to code
+xx (:   pip   po   )
+10 this goes to code
+(before: pip po)
+02 this goes before pippo
+03 this goes before pippo
+04 (empty)
+(after: pluto)
+12 this goes after pluto
+13 this goes after pluto
+14 this goes after pluto
+// (ignore:)
+Will never bee seen!
+(code:)
+11 this goes to code
+xx (:pluto)
+15 this goes to code
+(before: pip po )
+05 this goes before pippo
+06 this goes before pippo
+ (after: pip	po)
+07 this goes after pippo
+08 this goes after pippo
+09 this goes after pippo

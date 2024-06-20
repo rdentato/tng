@@ -1,19 +1,15 @@
-# Wave tng markdown to HTML
+# 
 
-```C
-  // SPDX-FileCopyrightText: © 2024 Remo Dentato <rdentato@gmail.com>
-  // SPDX-License-Identifier: MIT
-```
-- [Wave tng markdown to HTML](#wave-tng-markdown-to-html)
+## Table of content
+- [](#)
+  - [Table of content](#table-of-content)
   - [Command Line Interface](#command-line-interface)
   - [Standard Includes](#standard-includes)
   - [Exceptions](#exceptions)
 
 ```C 
-#define _(...)
-
+// 
 _(":Includes")
-
 _(":Global vars")
 _(":Functions")
 
