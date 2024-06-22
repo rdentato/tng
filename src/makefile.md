@@ -124,6 +124,7 @@ DISTR_FILES=dbg.h try.h vrg.h val.h val.c ../src/tng.c
 distr:
 	echo "/**************************************" > $(DISTR)/tng.c
 	echo "**   GENERATED FILE. DO NOT MODIFY   **" >> $(DISTR)/tng.c
+	echo "** Compile with: cc -O2 -o tng tng.c **" >> $(DISTR)/tng.c
 	echo "** For more information on tng visit **" >> $(DISTR)/tng.c
 	echo "**  https://github.com/rdentato/tng  **" >> $(DISTR)/tng.c
 	echo "**************************************/" >> $(DISTR)/tng.c

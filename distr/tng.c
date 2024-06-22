@@ -1,5 +1,6 @@
 /**************************************
 **   GENERATED FILE. DO NOT MODIFY   **
+** Compile with: cc -O2 -o tng tng.c **
 ** For more information on tng visit **
 **  https://github.com/rdentato/tng  **
 **************************************/
