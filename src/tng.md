@@ -116,7 +116,9 @@ int main(int argc, char *argv[]) {
   _(":Command Line Interface")
 
   try {
+    _dbgtrc("About to parse");
     _(":Parse input files")
+    _dbgtrc("Parsed");
     _(":Reassemble chunks into output file")
   }
   _(":Catch errors")
@@ -370,14 +372,17 @@ stored in the `linebuf` buffer.
 
 ```C
 _("after: Global vars")
-val_t linebuf;
 int linenum = 0;
 
-_("after:Initialize the variables and data structures.")
+_("before: Local variable for parsing")
+val_t linebuf;
+
+_("after:Local variable for parsing")
 linebuf = bufnew();
+_dbgtrc("lnbuf: %p",(void *)buf(linebuf));
 if (valisnil(linebuf)) throw(EX_OUTOFMEM, "");
 
-_("after:Cleanup")
+_("after:Cleanup after parsing")
 linebuf = buffree(linebuf);
 
 _("after:Read a line")
@@ -398,23 +403,35 @@ int parsefile(char *file_name)
 {
   _(":Local variable for parsing")
 
-  FILE *source_file = stdin;
-  if (file_name != NULL)  {
-    source_file = fopen(file_name,"rb");
-    if (!source_file) throw(EX_FILENOTFOUND, file_name);
-  }
+  _(":Open source file")
   
   cur_buffer = code_chunk;
-
+  _dbgtrc("In parsefile()");
   while (!feof(source_file)) {
     _(":Read a line")
+    _dbgtrc("ln: %.30s",buf(linebuf,0));
     _(":Identify tags. Sets tag, tag_arg and tag_indent")
     _(":Handle tags")
   }
 
-  if (file_name != NULL) fclose(source_file);
+  _dbgtrc("out parsefile()");
+
+  _(":Cleanup after parsing")
+
   return 0;
 }
+
+_("after:Open source file")
+FILE *source_file = stdin;
+if (file_name != NULL)  {
+  source_file = fopen(file_name,"rb");
+  if (!source_file) throw(EX_FILENOTFOUND, file_name);
+  if (feof(source_file)) throw(EX_FILEEMPTY, file_name);
+}
+
+_("after:Cleanup after parsing")
+if (file_name != NULL) fclose(source_file);
+
 ```
 
   ### Recognizing Tags
@@ -830,10 +847,14 @@ _("before: Global vars")
 #define EX_SYNTAXERR    5
 #define EX_DUPLICATEBUF 6
 #define EX_INFINITELOOP 7
+#define EX_FILEEMPTY    8
 
 _("after:Catch errors")
 catch(EX_FILENOTFOUND) {
   err("File not found: '%s'",exception.msg);
+}
+catch(EX_FILEEMPTY) {
+  err("File empty: '%s'",exception.msg);
 }
 catch(EX_NOFILEBUFFER) {
   err("Unable to create a buffer for: '%s'",exception.msg);

@@ -271,7 +271,6 @@ uint32_t bufload_3(val_t bb, uint32_t n, FILE *f)
   return l;
 }
 
-
 uint32_t bufloadln(val_t bb, FILE *f)
 {
   int c;
@@ -282,13 +281,15 @@ uint32_t bufloadln(val_t bb, FILE *f)
   RETURN_IF(!valisbuf(bb), 0, EINVAL);
   buf_t b = valtocleanpointer(bb);
 
+  RETURN_IF(!buf_makeroom(b,b->pos+32), 0, ENOMEM);
+
   uint32_t l = 0;
 
   while ((c=fgetc(f)) != EOF) {
 
-    if (c == '\n') break;
+    RETURN_IF(!buf_makeroom(b, b->pos+32), 0, ENOMEM);
 
-    RETURN_IF(!buf_makeroom(b,b->pos+32), 0, ENOMEM);
+    if (c == '\n') break;
 
     last_c = b->buf[b->pos];
     b->buf[b->pos] = c;
@@ -306,6 +307,10 @@ uint32_t bufloadln(val_t bb, FILE *f)
       b->end = b->pos;
       b->buf[b->pos] = '\0';
     }
+  }
+  else {
+    b->end = 0;
+    b->buf[0] = '\0';
   }
   return l;
 }

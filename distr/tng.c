@@ -2541,7 +2541,6 @@ uint32_t bufload_3(val_t bb, uint32_t n, FILE *f)
   return l;
 }
 
-
 uint32_t bufloadln(val_t bb, FILE *f)
 {
   int c;
@@ -2552,13 +2551,15 @@ uint32_t bufloadln(val_t bb, FILE *f)
   RETURN_IF(!valisbuf(bb), 0, EINVAL);
   buf_t b = valtocleanpointer(bb);
 
+  RETURN_IF(!buf_makeroom(b,b->pos+32), 0, ENOMEM);
+
   uint32_t l = 0;
 
   while ((c=fgetc(f)) != EOF) {
 
-    if (c == '\n') break;
+    RETURN_IF(!buf_makeroom(b, b->pos+32), 0, ENOMEM);
 
-    RETURN_IF(!buf_makeroom(b,b->pos+32), 0, ENOMEM);
+    if (c == '\n') break;
 
     last_c = b->buf[b->pos];
     b->buf[b->pos] = c;
@@ -2576,6 +2577,10 @@ uint32_t bufloadln(val_t bb, FILE *f)
       b->end = b->pos;
       b->buf[b->pos] = '\0';
     }
+  }
+  else {
+    b->end = 0;
+    b->buf[0] = '\0';
   }
   return l;
 }
@@ -4064,18 +4069,18 @@ val_t vecmapnext_(val_t vv, val_t *key)
   // SPDX-FileCopyrightText: © 2024 Remo Dentato <rdentato@gmail.com>
   // SPDX-License-Identifier: MIT
 #line 109 "tng.md"
-#line 794 "tng.md"
+#line 811 "tng.md"
 #include <stdio.h>
 
-#line 859 "tng.md"
+#line 880 "tng.md"
 #if !defined(DEBUG) && !defined(NDEBUG)
 #define DEBUG DEBUG_TEST
 #endif
-#line 743 "tng.md"
+#line 760 "tng.md"
 #ifndef VAL_VERSION
 #include "val.h"
 #endif
-#line 754 "tng.md"
+#line 771 "tng.md"
 #ifndef VRG_VERSION
 #ifndef VRGCLI
 #define VRGCLI
@@ -4083,22 +4088,22 @@ val_t vecmapnext_(val_t vv, val_t *key)
 #include "vrg.h"
 #endif
 
-#line 812 "tng.md"
+#line 829 "tng.md"
 #ifndef exception_info
 #define exception_info char *msg; int aux;
 #include "try.h"
 #endif
 
-#line 863 "tng.md"
+#line 884 "tng.md"
 #ifdef DEBUG
 #include "dbg.h"
 #endif 
 
 #line 110 "tng.md"
-#line 226 "tng.md"
+#line 228 "tng.md"
 val_t getbuffer(char prefix, char *waypoint);
 
-#line 424 "tng.md"
+#line 441 "tng.md"
 #define TAG_NONE     0x00
 #define TAG_TEXT     0x01
 #define TAG_EMPTY    0x02
@@ -4111,9 +4116,9 @@ val_t getbuffer(char prefix, char *waypoint);
 #define TAG_EXVOID   0x09
 #define TAG_TICKS    0x0A
 
-#line 705 "tng.md"
+#line 722 "tng.md"
 int count_out_recur = 0;
-#line 825 "tng.md"
+#line 842 "tng.md"
 // These are the defined exceptions
 #define EX_FILENOTFOUND 1
 #define EX_OUTOFMEM     2
@@ -4122,48 +4127,48 @@ int count_out_recur = 0;
 #define EX_SYNTAXERR    5
 #define EX_DUPLICATEBUF 6
 #define EX_INFINITELOOP 7
+#define EX_FILEEMPTY    8
 
-#line 868 "tng.md"
+#line 889 "tng.md"
 #define err(...) (fflush(stdout),fprintf(stderr,"ERROR: " __VA_ARGS__),fputc('\n',stderr))
-#line 145 "tng.md"
+#line 147 "tng.md"
 char **filelist = NULL;
-#line 191 "tng.md"
+#line 193 "tng.md"
 val_t code_chunk;  // The code chunk
 
-#line 205 "tng.md"
+#line 207 "tng.md"
 val_t chunks;      // The after/before chunks
 
-#line 278 "tng.md"
+#line 280 "tng.md"
 char *to_chunkname(char prefix, char *s);
 
-#line 323 "tng.md"
+#line 325 "tng.md"
 char *out_filename = NULL;
 FILE *out_file;
 
-#line 342 "tng.md"
+#line 344 "tng.md"
 val_t cur_buffer;
 
-#line 373 "tng.md"
-val_t linebuf;
+#line 375 "tng.md"
 int linenum = 0;
 
-#line 493 "tng.md"
+#line 510 "tng.md"
 int global_indent = 0;
 
-#line 762 "tng.md"
+#line 779 "tng.md"
 int nolinenums = 0;
 int buildndx = 0;
 
-#line 818 "tng.md"
+#line 835 "tng.md"
 try_t catch; // initialize the try/catch macros
 #line 111 "tng.md"
-#line 797 "tng.md"
+#line 814 "tng.md"
 static inline int isquote(int c)
 {
   return (c == '\'' || c == '"' || c == '`');
 }
 
-#line 229 "tng.md"
+#line 231 "tng.md"
 val_t getbuffer(char prefix, char *waypoint)
 {
   val_t cname;
@@ -4189,7 +4194,7 @@ val_t getbuffer(char prefix, char *waypoint)
 
   return buffer;
 }
-#line 281 "tng.md"
+#line 283 "tng.md"
 char *to_chunkname(char prefix, char *s)
 {
   static char name[128];
@@ -4223,10 +4228,18 @@ char *to_chunkname(char prefix, char *s)
 
   return name;
 }
-#line 397 "tng.md"
+#line 402 "tng.md"
 int parsefile(char *file_name)
 {
-#line 437 "tng.md"
+#line 378 "tng.md"
+val_t linebuf;
+
+#line 381 "tng.md"
+linebuf = bufnew();
+_dbgtrc("lnbuf: %p",(void *)buf(linebuf));
+if (valisnil(linebuf)) throw(EX_OUTOFMEM, "");
+
+#line 454 "tng.md"
 int   tag = TAG_NONE;
 char *tag_arg = NULL;
 int   tag_indent = 0;
@@ -4234,27 +4247,32 @@ char  voidstr[32];
       voidstr[0] = '\0';
 char *bufstr;
 
-#line 572 "tng.md"
+#line 589 "tng.md"
 int code = 0;
 
-#line 400 "tng.md"
+#line 405 "tng.md"
 
-  FILE *source_file = stdin;
-  if (file_name != NULL)  {
-    source_file = fopen(file_name,"rb");
-    if (!source_file) throw(EX_FILENOTFOUND, file_name);
-  }
+#line 425 "tng.md"
+FILE *source_file = stdin;
+if (file_name != NULL)  {
+  source_file = fopen(file_name,"rb");
+  if (!source_file) throw(EX_FILENOTFOUND, file_name);
+  if (feof(source_file)) throw(EX_FILEEMPTY, file_name);
+}
+
+#line 407 "tng.md"
   
   cur_buffer = code_chunk;
-
+  _dbgtrc("In parsefile()");
   while (!feof(source_file)) {
-#line 384 "tng.md"
+#line 389 "tng.md"
 buflen(linebuf,0);
 bufloadln(linebuf, source_file);
 linenum += 1;
 
-#line 411 "tng.md"
-#line 445 "tng.md"
+#line 412 "tng.md"
+    _dbgtrc("ln: %.30s",buf(linebuf,0));
+#line 462 "tng.md"
 {
   bufstr = buf(linebuf,0);
 
@@ -4263,7 +4281,7 @@ linenum += 1;
   tag_indent = 0;
 
   if (voidstr[0] != '\0') { // We are in the void
-#line 461 "tng.md"
+#line 478 "tng.md"
 {
   tag = TAG_INVOID;
   char *s = bufstr;
@@ -4278,10 +4296,10 @@ linenum += 1;
   } 
 }
 
-#line 454 "tng.md"
+#line 471 "tng.md"
   }
   else {
-#line 476 "tng.md"
+#line 493 "tng.md"
 {
   char *s = bufstr;
   
@@ -4291,7 +4309,7 @@ linenum += 1;
   }
     
   if (*s == '(') {
-#line 501 "tng.md"
+#line 518 "tng.md"
 {
   tag_indent = (s-bufstr) * global_indent;
   while (tag_indent > 0 && !isspace(bufstr[tag_indent-1]))
@@ -4308,7 +4326,7 @@ linenum += 1;
   else if (strncmp("void:",s,5) == 0)   { tag = TAG_VOID;     s += 5; }
   
   if (tag != TAG_NONE) {
-#line 545 "tng.md"
+#line 562 "tng.md"
 {
   char *e = s;
 
@@ -4323,7 +4341,7 @@ linenum += 1;
     throw(EX_SYNTAXERR,"Unterminated tag");
   }
 }
-#line 518 "tng.md"
+#line 535 "tng.md"
     if (tag == TAG_WAYPOINT && *tag_arg == '\0') {
       tag = TAG_EMPTY;
       tag_arg = NULL;
@@ -4331,10 +4349,10 @@ linenum += 1;
   }
 }
 
-#line 486 "tng.md"
+#line 503 "tng.md"
   }
   else {
-#line 526 "tng.md"
+#line 543 "tng.md"
 {
   s = bufstr;
   while (isspace(*s)) s++;
@@ -4353,16 +4371,16 @@ linenum += 1;
   }
 }
 
-#line 489 "tng.md"
+#line 506 "tng.md"
   }
 }
 
-#line 457 "tng.md"
+#line 474 "tng.md"
   }
 }
 
-#line 412 "tng.md"
-#line 575 "tng.md"
+#line 414 "tng.md"
+#line 592 "tng.md"
 switch (tag) {
 
   case TAG_EMPTY:    code = 0; break;
@@ -4377,50 +4395,50 @@ switch (tag) {
   case TAG_WAYPOINT: if (code) { 
                         // Insert a special code in the buffer (0x1B) to signal this is a waypoint
                         bufprintf(cur_buffer, "\x1B%08d %s\x1E\n",tag_indent, tag_arg);
-#line 624 "tng.md"
+#line 641 "tng.md"
 if (!nolinenums) {
   if (file_name != NULL)
     bufprintf(cur_buffer, "\x1F#line %d \"%s\"\n",linenum+1,file_name);
   else
     bufprintf(cur_buffer, "\x1F#line %d\n",linenum+1);
 }
-#line 590 "tng.md"
+#line 607 "tng.md"
                      }
                      break;
 
   case TAG_BEFORE:   cur_buffer = getbuffer('B',tag_arg);
-#line 624 "tng.md"
+#line 641 "tng.md"
 if (!nolinenums) {
   if (file_name != NULL)
     bufprintf(cur_buffer, "\x1F#line %d \"%s\"\n",linenum+1,file_name);
   else
     bufprintf(cur_buffer, "\x1F#line %d\n",linenum+1);
 }
-#line 595 "tng.md"
+#line 612 "tng.md"
                      code = 1;
                      break;
 
   case TAG_AFTER:    cur_buffer = getbuffer('A',tag_arg); 
-#line 624 "tng.md"
+#line 641 "tng.md"
 if (!nolinenums) {
   if (file_name != NULL)
     bufprintf(cur_buffer, "\x1F#line %d \"%s\"\n",linenum+1,file_name);
   else
     bufprintf(cur_buffer, "\x1F#line %d\n",linenum+1);
 }
-#line 600 "tng.md"
+#line 617 "tng.md"
                      code = 1; 
                      break;
 
   case TAG_CODE:     cur_buffer = code_chunk;
-#line 624 "tng.md"
+#line 641 "tng.md"
 if (!nolinenums) {
   if (file_name != NULL)
     bufprintf(cur_buffer, "\x1F#line %d \"%s\"\n",linenum+1,file_name);
   else
     bufprintf(cur_buffer, "\x1F#line %d\n",linenum+1);
 }
-#line 605 "tng.md"
+#line 622 "tng.md"
                      code = 1;
                      break;
 
@@ -4435,24 +4453,34 @@ if (!nolinenums) {
                      break;
 
   case TAG_EXVOID:   
-#line 624 "tng.md"
+#line 641 "tng.md"
 if (!nolinenums) {
   if (file_name != NULL)
     bufprintf(cur_buffer, "\x1F#line %d \"%s\"\n",linenum+1,file_name);
   else
     bufprintf(cur_buffer, "\x1F#line %d\n",linenum+1);
 }
-#line 620 "tng.md"
+#line 637 "tng.md"
                      break;
 }
 
-#line 413 "tng.md"
+#line 415 "tng.md"
   }
 
-  if (file_name != NULL) fclose(source_file);
+  _dbgtrc("out parsefile()");
+
+#line 386 "tng.md"
+linebuf = buffree(linebuf);
+
+#line 433 "tng.md"
+if (file_name != NULL) fclose(source_file);
+
+#line 420 "tng.md"
+
   return 0;
 }
-#line 640 "tng.md"
+
+#line 657 "tng.md"
 void reassemble(char prefix, char *name, int indent)
 {
 
@@ -4460,10 +4488,10 @@ void reassemble(char prefix, char *name, int indent)
   char *b;
   c = getbuffer(prefix,name);
   if (!valisnil(c)) {
-#line 712 "tng.md"
+#line 729 "tng.md"
 if (count_out_recur++ > 10) throw(EX_INFINITELOOP,name,prefix);
 
-#line 648 "tng.md"
+#line 665 "tng.md"
     b = valtostring(c);
     int n = 1;
     int new_indent;
@@ -4493,9 +4521,9 @@ if (count_out_recur++ > 10) throw(EX_INFINITELOOP,name,prefix);
       n = (*b == '\n');
       b++;
     }
-#line 729 "tng.md"
+#line 746 "tng.md"
 count_out_recur--;
-#line 678 "tng.md"
+#line 695 "tng.md"
   }
 }
 
@@ -4503,51 +4531,47 @@ count_out_recur--;
 
 int main(int argc, char *argv[]) {
 
-#line 194 "tng.md"
+#line 196 "tng.md"
 code_chunk = bufnew();
 if (valisnil(code_chunk)) throw(EX_OUTOFMEM,"");
 
-#line 208 "tng.md"
+#line 210 "tng.md"
 chunks = vecnew();
 if (valisnil(chunks)) throw(EX_OUTOFMEM,"");
 
-#line 327 "tng.md"
+#line 329 "tng.md"
 out_file = stdout;
 out_filename = NULL;
 
-#line 377 "tng.md"
-linebuf = bufnew();
-if (valisnil(linebuf)) throw(EX_OUTOFMEM, "");
-
 #line 116 "tng.md"
-#line 766 "tng.md"
+#line 783 "tng.md"
 vrgcli("version 1.0.001 (c) by Remo Dentato") {
   vrgarg("-n, --nolinenums\tNo line numbers") {
     nolinenums = 1;
   }
 
-#line 331 "tng.md"
+#line 333 "tng.md"
 vrgarg("-o, --outfile outfilename\tThe output file (defaults to stdout)") {
   out_filename = vrgarg;
   out_file = fopen(out_filename,"wb");
   if (out_file == NULL) vrgerror("Unable to write on '%s'\n",out_filename);
 }
 
-#line 772 "tng.md"
+#line 789 "tng.md"
 
-#line 167 "tng.md"
+#line 169 "tng.md"
 vrgarg("[filename ...]\tThe files to be processed. (defaults to stdin)") {
   filelist = &argv[vrgargn-1];
   break;
 }
-#line 774 "tng.md"
+#line 791 "tng.md"
   
-#line 496 "tng.md"
+#line 513 "tng.md"
 vrgarg("-i, --indent\tKeep indentation") {
   global_indent = 1;
 }
 
-#line 776 "tng.md"
+#line 793 "tng.md"
 
   vrgarg("-h, --help\tHelp") {
     vrghelp();
@@ -4562,7 +4586,8 @@ vrgarg("-i, --indent\tKeep indentation") {
 #line 117 "tng.md"
 
   try {
-#line 354 "tng.md"
+    _dbgtrc("About to parse");
+#line 356 "tng.md"
 if (filelist == NULL) {
   parsefile(NULL);
 } else {
@@ -4573,16 +4598,20 @@ if (filelist == NULL) {
   }
 }
 
-#line 120 "tng.md"
-#line 636 "tng.md"
+#line 121 "tng.md"
+    _dbgtrc("Parsed");
+#line 653 "tng.md"
 // Start from the main code chunk
 reassemble('C',"",0);
 
-#line 121 "tng.md"
+#line 123 "tng.md"
   }
-#line 835 "tng.md"
+#line 853 "tng.md"
 catch(EX_FILENOTFOUND) {
   err("File not found: '%s'",exception.msg);
+}
+catch(EX_FILEEMPTY) {
+  err("File empty: '%s'",exception.msg);
 }
 catch(EX_NOFILEBUFFER) {
   err("Unable to create a buffer for: '%s'",exception.msg);
@@ -4596,7 +4625,7 @@ catch(EX_SYNTAXERR) {
 catch(EX_DUPLICATEBUF) {
   err("Duplicate file buffer %s",exception.msg);
 }
-#line 715 "tng.md"
+#line 732 "tng.md"
 catch(EX_INFINITELOOP) {
   char *tag="";
   if (exception.aux == 'A') tag="after";
@@ -4606,48 +4635,45 @@ catch(EX_INFINITELOOP) {
   while (e>exception.msg && isspace(e[-1])) e--;
   err("Infinite recursion while expanding: (%s:%.*s)",tag,(int)(e-exception.msg),exception.msg);
 }
-#line 851 "tng.md"
+#line 872 "tng.md"
 
-#line 123 "tng.md"
+#line 125 "tng.md"
   catch() {
     err("Unexpected error");
   }
 
-#line 198 "tng.md"
+#line 200 "tng.md"
 code_chunk = buffree(code_chunk);
-#line 212 "tng.md"
+#line 214 "tng.md"
 chunks = vecfree(chunks);
 bufclearstore(); // free up the stored keys.
-#line 338 "tng.md"
+#line 340 "tng.md"
 if (out_filename) fclose(out_file);
 
 
-#line 381 "tng.md"
-linebuf = buffree(linebuf);
-
-#line 128 "tng.md"
+#line 130 "tng.md"
 
   exit(0);
 }
-#line 144 "tng.md"
-#line 166 "tng.md"
-#line 190 "tng.md"
-#line 204 "tng.md"
-#line 225 "tng.md"
-#line 277 "tng.md"
-#line 322 "tng.md"
-#line 353 "tng.md"
-#line 372 "tng.md"
-#line 396 "tng.md"
-#line 423 "tng.md"
-#line 571 "tng.md"
-#line 635 "tng.md"
-#line 704 "tng.md"
-#line 711 "tng.md"
+#line 146 "tng.md"
+#line 168 "tng.md"
+#line 192 "tng.md"
+#line 206 "tng.md"
+#line 227 "tng.md"
+#line 279 "tng.md"
+#line 324 "tng.md"
+#line 355 "tng.md"
+#line 374 "tng.md"
+#line 401 "tng.md"
+#line 440 "tng.md"
+#line 588 "tng.md"
+#line 652 "tng.md"
+#line 721 "tng.md"
 #line 728 "tng.md"
-#line 742 "tng.md"
-#line 753 "tng.md"
-#line 793 "tng.md"
-#line 811 "tng.md"
-#line 824 "tng.md"
-#line 858 "tng.md"
+#line 745 "tng.md"
+#line 759 "tng.md"
+#line 770 "tng.md"
+#line 810 "tng.md"
+#line 828 "tng.md"
+#line 841 "tng.md"
+#line 879 "tng.md"
