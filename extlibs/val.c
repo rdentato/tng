@@ -1,4 +1,7 @@
+#ifndef VAL_VERSION
 #include "val.h"
+#endif
+
 #line 1 "buf.c"
 //  SPDX-FileCopyrightText: © 2023 Remo Dentato <rdentato@gmail.com>
 //  SPDX-License-Identifier: MIT

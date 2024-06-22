@@ -4,6 +4,7 @@
   - [Introduction](#introduction)
   - [Command line options:](#command-line-options)
   - [Syntax](#syntax)
+  - [Single-file distribution.](#single-file-distribution)
   - [Historical note.](#historical-note)
   - [Copyright note (MIT Licence)](#copyright-note-mit-licence)
 
@@ -78,6 +79,21 @@ between `(code:..)` and `(text:)` commands, you can use the usual *triple backti
 If in your text you want to insert a piece of code that do not really belong
 to the source code, you can add a space after the backticks. Markdown processors
 will still consider it a block of code but `tng` will not!
+
+## Single-file distribution.
+  If you want use `tng` for your project, you may want to distribute it along
+with your project. 
+
+  To avoid the hassle of adding a bunch of source code files that are not directly
+related to your project, you can add just the `tng.c` file in the `distr` directory.
+
+  It can be easily compiled with:
+
+``` bash
+  cc -O2 -Wall -o tng tng.c
+```
+
+  This will generate the `tng` utility you may need to tangle your own source code.
 
 ## Historical note.
 The `src/script` directory preserves, for historical reasoons, the first

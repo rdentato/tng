@@ -2,24 +2,32 @@
   // SPDX-FileCopyrightText: © 2024 Remo Dentato <rdentato@gmail.com>
   // SPDX-License-Identifier: MIT
 #line 109 "tng.md"
-#line 787 "tng.md"
+#line 794 "tng.md"
 #include <stdio.h>
 
-#line 849 "tng.md"
+#line 859 "tng.md"
 #if !defined(DEBUG) && !defined(NDEBUG)
 #define DEBUG DEBUG_TEST
 #endif
 #line 743 "tng.md"
+#ifndef VAL_VERSION
 #include "val.h"
-#line 751 "tng.md"
+#endif
+#line 754 "tng.md"
+#ifndef VRG_VERSION
+#ifndef VRGCLI
 #define VRGCLI
+#endif
 #include "vrg.h"
+#endif
 
-#line 804 "tng.md"
+#line 812 "tng.md"
+#ifndef exception_info
 #define exception_info char *msg; int aux;
 #include "try.h"
+#endif
 
-#line 853 "tng.md"
+#line 863 "tng.md"
 #ifdef DEBUG
 #include "dbg.h"
 #endif 
@@ -43,7 +51,7 @@ val_t getbuffer(char prefix, char *waypoint);
 
 #line 705 "tng.md"
 int count_out_recur = 0;
-#line 815 "tng.md"
+#line 825 "tng.md"
 // These are the defined exceptions
 #define EX_FILENOTFOUND 1
 #define EX_OUTOFMEM     2
@@ -53,7 +61,7 @@ int count_out_recur = 0;
 #define EX_DUPLICATEBUF 6
 #define EX_INFINITELOOP 7
 
-#line 858 "tng.md"
+#line 868 "tng.md"
 #define err(...) (fflush(stdout),fprintf(stderr,"ERROR: " __VA_ARGS__),fputc('\n',stderr))
 #line 145 "tng.md"
 char **filelist = NULL;
@@ -80,14 +88,14 @@ int linenum = 0;
 #line 493 "tng.md"
 int global_indent = 0;
 
-#line 755 "tng.md"
+#line 762 "tng.md"
 int nolinenums = 0;
 int buildndx = 0;
 
-#line 808 "tng.md"
+#line 818 "tng.md"
 try_t catch; // initialize the try/catch macros
 #line 111 "tng.md"
-#line 790 "tng.md"
+#line 797 "tng.md"
 static inline int isquote(int c)
 {
   return (c == '\'' || c == '"' || c == '`');
@@ -450,7 +458,7 @@ linebuf = bufnew();
 if (valisnil(linebuf)) throw(EX_OUTOFMEM, "");
 
 #line 116 "tng.md"
-#line 759 "tng.md"
+#line 766 "tng.md"
 vrgcli("version 1.0 (c) by Remo Dentato") {
   vrgarg("-n, --nolinenums\tNo line numbers") {
     nolinenums = 1;
@@ -463,21 +471,21 @@ vrgarg("-o, --outfile outfilename\tThe output file (defaults to stdout)") {
   if (out_file == NULL) vrgerror("Unable to write on '%s'\n",out_filename);
 }
 
-#line 765 "tng.md"
+#line 772 "tng.md"
 
 #line 167 "tng.md"
 vrgarg("[filename ...]\tThe files to be processed. (defaults to stdin)") {
   filelist = &argv[vrgargn-1];
   break;
 }
-#line 767 "tng.md"
+#line 774 "tng.md"
   
 #line 496 "tng.md"
 vrgarg("-i, --indent\tKeep indentation") {
   global_indent = 1;
 }
 
-#line 769 "tng.md"
+#line 776 "tng.md"
 
   vrgarg("-h, --help\tHelp") {
     vrghelp();
@@ -510,7 +518,7 @@ reassemble('C',"",0);
 
 #line 121 "tng.md"
   }
-#line 825 "tng.md"
+#line 835 "tng.md"
 catch(EX_FILENOTFOUND) {
   err("File not found: '%s'",exception.msg);
 }
@@ -536,7 +544,7 @@ catch(EX_INFINITELOOP) {
   while (e>exception.msg && isspace(e[-1])) e--;
   err("Infinite recursion while expanding: (%s:%.*s)",tag,(int)(e-exception.msg),exception.msg);
 }
-#line 841 "tng.md"
+#line 851 "tng.md"
 
 #line 123 "tng.md"
   catch() {
@@ -576,8 +584,8 @@ linebuf = buffree(linebuf);
 #line 711 "tng.md"
 #line 728 "tng.md"
 #line 742 "tng.md"
-#line 750 "tng.md"
-#line 786 "tng.md"
-#line 803 "tng.md"
-#line 814 "tng.md"
-#line 848 "tng.md"
+#line 753 "tng.md"
+#line 793 "tng.md"
+#line 811 "tng.md"
+#line 824 "tng.md"
+#line 858 "tng.md"

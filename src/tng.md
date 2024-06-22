@@ -740,23 +740,30 @@ count_out_recur--;
 
 ```C
 _("after:includes")
+#ifndef VAL_VERSION
 #include "val.h"
+#endif
 ```
 
 ## Commmand line interface
-  Let's use the `vrg.h` facilities for the CLI
+  Let's use the `vrg.h` facilities for the CLI.
+  The `#ifdef` is there to accomodate the creation of the "collated" version of `tng.c`
   
 ```C
 _("after: includes")
+#ifndef VRG_VERSION
+#ifndef VRGCLI
 #define VRGCLI
+#endif
 #include "vrg.h"
+#endif
 
 _("after: Global vars")
 int nolinenums = 0;
 int buildndx = 0;
 
 _("after: Command line interface")
-vrgcli("version 1.0 (c) by Remo Dentato") {
+vrgcli("version 1.0.001 (c) by Remo Dentato") {
   vrgarg("-n, --nolinenums\tNo line numbers") {
     nolinenums = 1;
   }
@@ -798,11 +805,14 @@ static inline int isquote(int c)
   To simmplify error handling, we use the exception library `try.h` in
 the `extlibs` directory.
 
+  The `#ifdef` is there to accomodate the creation of the "collated" version of `tng.c`
 
 ```C
 _("after: includes")
+#ifndef exception_info
 #define exception_info char *msg; int aux;
 #include "try.h"
+#endif
 
 _("after:Global vars")
 try_t catch; // initialize the try/catch macros

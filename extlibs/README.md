@@ -12,5 +12,6 @@ for other projects:
 - [`vrg`](https://github.com/rdentato/vrg)
 - [`val`](https://github.com/rdentato/val)
 
-  Please send any bug or request to `rdentato@gmail.com` or just open an issue on
+
+Please send any bug or request to `rdentato@gmail.com` or just open an issue on
 the Github repository.
