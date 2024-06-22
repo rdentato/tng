@@ -1,3 +1,9 @@
+/**************************************
+**   GENERATED FILE. DO NOT MODIFY   **
+** For more information on tng visit **
+**  https://github.com/rdentato/tng  **
+**************************************/
+
 #define VRGCLI
 #define NDEBUG
 #define exception_info char *msg; int aux;

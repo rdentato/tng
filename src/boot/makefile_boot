@@ -24,7 +24,13 @@ tng2htm.c: tng tng2htm.md
 DISTR=../distr
 DISTR_FILES=dbg.h try.h vrg.h val.h val.c ../src/tng.c
 distr:
-	echo "#define VRGCLI" > $(DISTR)/tng.c
+	echo "/**************************************" > $(DISTR)/tng.c
+	echo "**   GENERATED FILE. DO NOT MODIFY   **" >> $(DISTR)/tng.c
+	echo "** For more information on tng visit **" >> $(DISTR)/tng.c
+	echo "**  https://github.com/rdentato/tng  **" >> $(DISTR)/tng.c
+	echo "**************************************/" >> $(DISTR)/tng.c
+	echo "" >> $(DISTR)/tng.c
+	echo "#define VRGCLI" >> $(DISTR)/tng.c
 	echo "#define NDEBUG" >> $(DISTR)/tng.c
 	grep "define exception_info" tng.c >> $(DISTR)/tng.c
 	cd $(EXTLIBS); for f in $(DISTR_FILES); do echo""; echo "#line 1 \"$$f\""; cat $$f; done >> $(DISTR)/tng.c
