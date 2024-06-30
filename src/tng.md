@@ -106,27 +106,27 @@ chunk of codes and then the output file is reassembled.
 
 
 ```C 
-_(":Includes")
-_(":Global vars")  
-_(":Functions") 
+@(":Includes")
+@(":Global vars")  
+@(":Functions") 
 
 int main(int argc, char *argv[]) {
 
-  _(":Initialize the variables and data structures.") 
-  _(":Command Line Interface")
+  @(":Initialize the variables and data structures.") 
+  @(":Command Line Interface")
 
   try {
     _dbgtrc("About to parse");
-    _(":Parse input files")
+    @(":Parse input files")
     _dbgtrc("Parsed");
-    _(":Reassemble chunks into output file")
+    @(":Reassemble chunks into output file")
   }
-  _(":Catch errors")
+  @(":Catch errors")
   catch() {
     err("Unexpected error");
   }
 
-  _(":Cleanup")
+  @(":Cleanup")
 
   exit(0);
 }
@@ -143,7 +143,7 @@ but the names of files to be processed can also be passed on the command line.
 in the order they are specified on the command line.
 
 ```C
-_("after: Global vars")
+@("after: Global vars")
 char **filelist = NULL;
 ```
 
@@ -165,7 +165,7 @@ after the options.
 The first element of `filelist` (i.e. `filelist[0]`) will be "src1".
 
 ```C
-_("after: CLI action to set the list of files to be parsed.")
+@("after: CLI action to set the list of files to be parsed.")
 vrgarg("[filename ...]\tThe files to be processed. (defaults to stdin)") {
   filelist = &argv[vrgargn-1];
   break;
@@ -189,28 +189,28 @@ in a buffer hold in the `code_chunk` variable.
 
 
 ```C
-_("after:Global vars")
+@("after:Global vars")
 val_t code_chunk;  // The code chunk
 
-_("after:Initialize the variables and data structures.")
+@("after:Initialize the variables and data structures.")
 code_chunk = bufnew();
 if (valisnil(code_chunk)) throw(EX_OUTOFMEM,"");
 
-_("after:Cleanup")
+@("after:Cleanup")
 code_chunk = buffree(code_chunk);
 ```
 
   The after/before chunks are stored in a map hold by the variable `chunks`.
 
 ```C
-_("after:Global vars")
+@("after:Global vars")
 val_t chunks;      // The after/before chunks
 
-_("after:Initialize the variables and data structures.")
+@("after:Initialize the variables and data structures.")
 chunks = vecnew();
 if (valisnil(chunks)) throw(EX_OUTOFMEM,"");
 
-_("after:Cleanup")
+@("after:Cleanup")
 chunks = vecfree(chunks);
 bufclearstore(); // free up the stored keys.
 ```
@@ -224,10 +224,10 @@ will return the buffer containing the text that goes after the `Initializae engi
 waypoint.
 
 ```C
-_("before: Global vars")  
+@("before: Global vars")  
 val_t getbuffer(char prefix, char *waypoint);
 
-_("after:Functions")
+@("after:Functions")
 val_t getbuffer(char prefix, char *waypoint)
 {
   val_t cname;
@@ -276,10 +276,10 @@ using different strings for the same waypoint, but subtle variations
 
 
 ```C
-_("after:Global vars")
+@("after:Global vars")
 char *to_chunkname(char prefix, char *s);
 
-_("after:Functions")
+@("after:Functions")
 char *to_chunkname(char prefix, char *s)
 {
   static char name[128];
@@ -321,26 +321,26 @@ char *to_chunkname(char prefix, char *s)
   use the CLI option `-o` to specify which file should be created.
 
 ```C
-_("after: Global vars")
+@("after: Global vars")
 char *out_filename = NULL;
 FILE *out_file;
 
-_("after:Initialize the variables and data structures.")
+@("after:Initialize the variables and data structures.")
 out_file = stdout;
 out_filename = NULL;
 
-_("after: CLI action to set the output file name")
+@("after: CLI action to set the output file name")
 vrgarg("-o, --outfile outfilename\tThe output file (defaults to stdout)") {
   out_filename = vrgarg;
   out_file = fopen(out_filename,"wb");
   if (out_file == NULL) vrgerror("Unable to write on '%s'\n",out_filename);
 }
 
-_("after:cleanup")
+@("after:cleanup")
 if (out_filename) fclose(out_file);
 
 
-_("after: Global vars")
+@("after: Global vars")
 val_t cur_buffer;
 
 ```
@@ -352,7 +352,7 @@ by the C standard (5.1.2.2.1) that the last element of the array is a
 pointer to `NULL`.
 
 ```C
-_("after:Parse input files")
+@("after:Parse input files")
 if (filelist == NULL) {
   parsefile(NULL);
 } else {
@@ -371,21 +371,19 @@ stored in the `linebuf` buffer.
   The variable `linenum` carries the current line number.
 
 ```C
-_("after: Global vars")
+@("after: Global vars")
 int linenum = 0;
-
-_("before: Local variable for parsing")
 val_t linebuf;
 
-_("after:Local variable for parsing")
+@("after:Initialize the variables and data structures.")
 linebuf = bufnew();
 _dbgtrc("lnbuf: %p",(void *)buf(linebuf));
 if (valisnil(linebuf)) throw(EX_OUTOFMEM, "");
 
-_("after:Cleanup after parsing")
+@("after:Cleanup")
 linebuf = buffree(linebuf);
 
-_("after:Read a line")
+@("after:Read a line")
 buflen(linebuf,0);
 bufloadln(linebuf, source_file);
 linenum += 1;
@@ -398,38 +396,39 @@ the input files, extracting the chunk of codes and putting them
 in the appropriate buffers.
 
 ```C
-_("after:Functions")
+@("after:Functions")
 int parsefile(char *file_name)
 {
-  _(":Local variable for parsing")
+  @(":Local variable for parsing")
 
-  _(":Open source file")
+  @(":Open source file")
   
   cur_buffer = code_chunk;
   _dbgtrc("In parsefile()");
   while (!feof(source_file)) {
-    _(":Read a line")
+    @(":Read a line")
     _dbgtrc("ln: %.30s",buf(linebuf,0));
-    _(":Identify tags. Sets tag, tag_arg and tag_indent")
-    _(":Handle tags")
+    @(":Identify tags. Sets tag, tag_arg and tag_indent")
+    @(":Handle tags")
   }
 
   _dbgtrc("out parsefile()");
 
-  _(":Cleanup after parsing")
+  @(":Cleanup after parsing")
 
   return 0;
 }
 
-_("after:Open source file")
+@("after:Open source file")
 FILE *source_file = stdin;
 if (file_name != NULL)  {
   source_file = fopen(file_name,"rb");
   if (!source_file) throw(EX_FILENOTFOUND, file_name);
   if (feof(source_file)) throw(EX_FILEEMPTY, file_name);
 }
+linenum = 0;
 
-_("after:Cleanup after parsing")
+@("after:Cleanup after parsing")
 if (file_name != NULL) fclose(source_file);
 
 ```
@@ -437,7 +436,7 @@ if (file_name != NULL) fclose(source_file);
   ### Recognizing Tags
 
 ```C
-_("before: Global vars")
+@("before: Global vars")
 #define TAG_NONE     0x00
 #define TAG_TEXT     0x01
 #define TAG_EMPTY    0x02
@@ -450,7 +449,7 @@ _("before: Global vars")
 #define TAG_EXVOID   0x09
 #define TAG_TICKS    0x0A
 
-_("after: Local variable for parsing")
+@("after: Local variable for parsing")
 int   tag = TAG_NONE;
 char *tag_arg = NULL;
 int   tag_indent = 0;
@@ -458,7 +457,7 @@ char  voidstr[32];
       voidstr[0] = '\0';
 char *bufstr;
 
-_("after:Identify tags. Sets tag, tag_arg and tag_indent")
+@("after:Identify tags. Sets tag, tag_arg and tag_indent")
 {
   bufstr = buf(linebuf,0);
 
@@ -467,14 +466,14 @@ _("after:Identify tags. Sets tag, tag_arg and tag_indent")
   tag_indent = 0;
 
   if (voidstr[0] != '\0') { // We are in the void
-    _(":Check if we are at the end of void")
+    @(":Check if we are at the end of void")
   }
   else {
-    _(":Look for a tag")
+    @(":Look for a tag")
   }
 }
 
-_("after:Check if we are at the end of void")
+@("after:Check if we are at the end of void")
 {
   tag = TAG_INVOID;
   char *s = bufstr;
@@ -489,7 +488,7 @@ _("after:Check if we are at the end of void")
   } 
 }
 
-_("after:Look for a tag")
+@("after:Look for a tag")
 {
   char *s = bufstr;
   
@@ -499,22 +498,22 @@ _("after:Look for a tag")
   }
     
   if (*s == '(') {
-    _(": Found a possible tag")
+    @(": Found a possible tag")
   }
   else {
-    _(": Look for three backticks")
+    @(": Look for three backticks")
   }
 }
 
-_("after:Global vars")
+@("after:Global vars")
 int global_indent = 0;
 
-_("after:CLI for indentation")
+@("after:CLI for indentation")
 vrgarg("-i, --indent\tKeep indentation") {
   global_indent = 1;
 }
 
-_("after: Found a possible tag")
+@("after: Found a possible tag")
 {
   tag_indent = (s-bufstr) * global_indent;
   while (tag_indent > 0 && !isspace(bufstr[tag_indent-1]))
@@ -531,7 +530,7 @@ _("after: Found a possible tag")
   else if (strncmp("void:",s,5) == 0)   { tag = TAG_VOID;     s += 5; }
   
   if (tag != TAG_NONE) {
-    _(": Zero terminate the argument")
+    @(": Zero terminate the argument")
     if (tag == TAG_WAYPOINT && *tag_arg == '\0') {
       tag = TAG_EMPTY;
       tag_arg = NULL;
@@ -539,7 +538,7 @@ _("after: Found a possible tag")
   }
 }
 
-_("after: Look for three backticks")
+@("after: Look for three backticks")
 {
   s = bufstr;
   while (isspace(*s)) s++;
@@ -558,7 +557,7 @@ _("after: Look for three backticks")
   }
 }
 
-_("after: Zero terminate the argument")
+@("after: Zero terminate the argument")
 {
   char *e = s;
 
@@ -585,10 +584,10 @@ _("after: Zero terminate the argument")
   - `voidstr` : If we are "in a void", this string will be non empty.
 
 ```C
-_("after:Local variable for parsing")
+@("after:Local variable for parsing")
 int code = 0;
 
-_("after:Handle tags")
+@("after:Handle tags")
 switch (tag) {
 
   case TAG_EMPTY:    code = 0; break;
@@ -603,22 +602,22 @@ switch (tag) {
   case TAG_WAYPOINT: if (code) { 
                         // Insert a special code in the buffer (0x1B) to signal this is a waypoint
                         bufprintf(cur_buffer, "\x1B%08d %s\x1E\n",tag_indent, tag_arg);
-                        _(": Emit line number")
+                        @(": Emit line number")
                      }
                      break;
 
   case TAG_BEFORE:   cur_buffer = getbuffer('B',tag_arg);
-                     _(": Emit line number")
+                     @(": Emit line number")
                      code = 1;
                      break;
 
   case TAG_AFTER:    cur_buffer = getbuffer('A',tag_arg); 
-                     _(": Emit line number")
+                     @(": Emit line number")
                      code = 1; 
                      break;
 
   case TAG_CODE:     cur_buffer = code_chunk;
-                     _(": Emit line number")
+                     @(": Emit line number")
                      code = 1;
                      break;
 
@@ -633,11 +632,11 @@ switch (tag) {
                      break;
 
   case TAG_EXVOID:   
-                     _(": Emit line number")
+                     @(": Emit line number")
                      break;
 }
 
-_("after: Emit line number")
+@("after: Emit line number")
 if (!nolinenums) {
   if (file_name != NULL)
     bufprintf(cur_buffer, "\x1F#line %d \"%s\"\n",linenum+1,file_name);
@@ -649,11 +648,11 @@ if (!nolinenums) {
 ## Reassembling chunks
 
 ```C
-_("after:Reassemble chunks into output file")
+@("after:Reassemble chunks into output file")
 // Start from the main code chunk
 reassemble('C',"",0);
 
-_("after:functions")
+@("after:functions")
 void reassemble(char prefix, char *name, int indent)
 {
 
@@ -661,7 +660,7 @@ void reassemble(char prefix, char *name, int indent)
   char *b;
   c = getbuffer(prefix,name);
   if (!valisnil(c)) {
-    _(":Increment and check loop counter")
+    @(":Increment and check loop counter")
     b = valtostring(c);
     int n = 1;
     int new_indent;
@@ -691,7 +690,7 @@ void reassemble(char prefix, char *name, int indent)
       n = (*b == '\n');
       b++;
     }
-    _(":Decrement loop counter")
+    @(":Decrement loop counter")
   }
 }
 
@@ -700,35 +699,34 @@ void reassemble(char prefix, char *name, int indent)
   It might happen that one or more chunks refer recursively to each other.
 For example this code:
 
-``` 
-    Hello!
-    (:target A)
+        Hello!
+        (:target A)
+        
+    (after:target B)
+        How are
+        (:target A)
     
-(after:target B)
-    How are
-    (:target A)
+    (after:target A)
+        you?
+        (:target B)
 
-(after:target A)
-    you?
-    (:target B)
-```
 
 would cause an infinite loop!
 
 To detect this, a counter is used:
 
 ```C
-_("before: Global Vars")
+@("before: Global Vars")
 int count_out_recur = 0;
 ```
  It will be incremented when starting an expansion and if the number of 
 loop is higher than 10 (an arbitrary limit), the expansion will be stopped.
 
 ```C
-_("after:Increment and check loop counter")
+@("after:Increment and check loop counter")
 if (count_out_recur++ > 10) throw(EX_INFINITELOOP,name,prefix);
 
-_("after:Catch Infinite loop")
+@("after:Catch Infinite loop")
 catch(EX_INFINITELOOP) {
   char *tag="";
   if (exception.aux == 'A') tag="after";
@@ -742,7 +740,7 @@ catch(EX_INFINITELOOP) {
   and decremented when the expansion has been completed:
 
 ```C
-_("after:Decrement loop counter")
+@("after:Decrement loop counter")
 count_out_recur--;
 ```
 
@@ -756,7 +754,7 @@ count_out_recur--;
    - `A~xxx` The text to be inserted after waypoint xxx
 
 ```C
-_("after:includes")
+@("after:includes")
 #ifndef VAL_VERSION
 #include "val.h"
 #endif
@@ -767,7 +765,7 @@ _("after:includes")
   The `#ifdef` is there to accomodate the creation of the "collated" version of `tng.c`
   
 ```C
-_("after: includes")
+@("after: includes")
 #ifndef VRG_VERSION
 #ifndef VRGCLI
 #define VRGCLI
@@ -775,21 +773,21 @@ _("after: includes")
 #include "vrg.h"
 #endif
 
-_("after: Global vars")
+@("after: Global vars")
 int nolinenums = 0;
 int buildndx = 0;
 
-_("after: Command line interface")
+@("after: Command line interface")
 vrgcli("version 1.0.001 (c) by Remo Dentato") {
   vrgarg("-n, --nolinenums\tNo line numbers") {
     nolinenums = 1;
   }
 
-  _(":CLI action to set the output file name")
+  @(":CLI action to set the output file name")
 
-  _(":CLI action to set the list of files to be parsed.")
+  @(":CLI action to set the list of files to be parsed.")
   
-  _(":CLI for indentation")
+  @(":CLI for indentation")
 
   vrgarg("-h, --help\tHelp") {
     vrghelp();
@@ -807,10 +805,10 @@ vrgcli("version 1.0.001 (c) by Remo Dentato") {
 Let's park here all the includes needed.
 
 ```C
-_("before: includes")
+@("before: includes")
 #include <stdio.h>
 
-_("before: Functions")
+@("before: Functions")
 static inline int isquote(int c)
 {
   return (c == '\'' || c == '"' || c == '`');
@@ -825,20 +823,20 @@ the `extlibs` directory.
   The `#ifdef` is there to accomodate the creation of the "collated" version of `tng.c`
 
 ```C
-_("after: includes")
+@("after: includes")
 #ifndef exception_info
 #define exception_info char *msg; int aux;
 #include "try.h"
 #endif
 
-_("after:Global vars")
+@("after:Global vars")
 try_t catch; // initialize the try/catch macros
 ```
 
   Set up the expetions used:
 
 ```C
-_("before: Global vars")
+@("before: Global vars")
 // These are the defined exceptions
 #define EX_FILENOTFOUND 1
 #define EX_OUTOFMEM     2
@@ -849,7 +847,7 @@ _("before: Global vars")
 #define EX_INFINITELOOP 7
 #define EX_FILEEMPTY    8
 
-_("after:Catch errors")
+@("after:Catch errors")
 catch(EX_FILENOTFOUND) {
   err("File not found: '%s'",exception.msg);
 }
@@ -868,7 +866,7 @@ catch(EX_SYNTAXERR) {
 catch(EX_DUPLICATEBUF) {
   err("Duplicate file buffer %s",exception.msg);
 }
-_(":Catch Infinite loop")
+@(":Catch Infinite loop")
 
 ```
 
@@ -876,16 +874,16 @@ _(":Catch Infinite loop")
   Set the default level of debugging information
 
 ```C
-_("before:includes")
+@("before:includes")
 #if !defined(DEBUG) && !defined(NDEBUG)
 #define DEBUG DEBUG_TEST
 #endif
-_("after:includes")
+@("after:includes")
 #ifdef DEBUG
 #include "dbg.h"
 #endif 
 
-_("before:global vars")
+@("before:global vars")
 #define err(...) (fflush(stdout),fprintf(stderr,"ERROR: " __VA_ARGS__),fputc('\n',stderr))
 ```
 
